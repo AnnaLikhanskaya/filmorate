@@ -13,16 +13,16 @@ public class FilmControllerTest {
 
     @Test
     public void createdFilmWithFailName() {
-        Film filmNameIsBlank = Film.builder().id(0).name("    ").description("название фильма состоит из пробелов")
+        Film filmNameIsBlank = Film.builder().id(0).name("    ").description("Название фильма состоит из пробелов")
                 .releaseDate(LocalDate.of(2000, 1, 4)).duration(100)
                 .build();
-        Film filmNameIsNull = Film.builder().id(1).name(null).description("название фильма = null")
+        Film filmNameIsNull = Film.builder().id(1).name(null).description("Название фильма = null")
                 .releaseDate(LocalDate.of(2000, 2, 5)).duration(100)
                 .build();
-        Film filmNameIsEmpty = Film.builder().id(2).name("").description("имя фильма пустое")
+        Film filmNameIsEmpty = Film.builder().id(2).name("").description("Название фильма пустое")
                 .releaseDate(LocalDate.of(2000, 3, 6)).duration(200)
                 .build();
-        Film filmNameIsCorrectly = Film.builder().id(3).name("название фильма").description("описание")
+        Film filmNameIsCorrectly = Film.builder().id(3).name("Название фильма").description("описание")
                 .releaseDate(LocalDate.of(2000, 4, 7)).duration(10)
                 .build();
 
