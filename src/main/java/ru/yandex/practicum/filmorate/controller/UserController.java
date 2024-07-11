@@ -24,7 +24,7 @@ public class UserController {
     }
 
     @GetMapping
-    public List<User> getUsers(User userNameIsBlank) {
+    public List<User> getUsers() {
         log.info("Получен запрос на список пользователей");
         return getListUsers();
     }

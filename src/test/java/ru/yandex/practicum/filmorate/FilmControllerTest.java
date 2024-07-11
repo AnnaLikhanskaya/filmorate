@@ -26,11 +26,15 @@ public class FilmControllerTest {
                 .releaseDate(LocalDate.of(2000, 4, 7)).duration(10)
                 .build();
 
-        assertThrows(NullPointerException.class, () -> filmController.postFilm(filmNameIsBlank), "Ошибка тестирования проверки фильма с 'name', состоящим из пробелов.");
+        assertThrows(NullPointerException.class, () -> filmController.postFilm(filmNameIsBlank),
+                "Ошибка тестирования проверки фильма с 'name', состоящим из пробелов.");
 
-        assertThrows(NullPointerException.class, () -> filmController.postFilm(filmNameIsNull), "Ошибка тестирования проверки фильма с 'name' = null.");
+        assertThrows(NullPointerException.class, () -> filmController.postFilm(filmNameIsNull),
+                "Ошибка тестирования проверки фильма с 'name' = null.");
 
-        assertThrows(NullPointerException.class, () -> filmController.postFilm(filmNameIsEmpty), "Ошибка тестирования проверки фильма с пустым 'name'.");
+        assertThrows(NullPointerException.class, () -> filmController.postFilm(filmNameIsEmpty),
+                "Ошибка тестирования проверки фильма с пустым 'name'.");
+        assertThrows(NullPointerException.class, () -> filmController.postFilm(filmNameIsCorrectly));
 
     }
 }

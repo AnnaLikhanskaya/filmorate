@@ -22,7 +22,7 @@ public class FilmController {
     }
 
     @GetMapping
-    public List<Film> getFilms(LocalDate localDate) {
+    public List<Film> getFilms() {
         log.info("Получен запрос на список фильмов");
         return getListFilms();
     }
