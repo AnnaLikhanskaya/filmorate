@@ -15,7 +15,7 @@ import java.util.*;
 public class FilmController {
     private Map<Integer, Film> films = new HashMap<>();
     private int nextId = 1;
-    private static final LocalDate RELEASE_DATE = LocalDate.of(1985, 12, 28);
+    private static final LocalDate RELEASE_DATE = LocalDate.of(1895, 12, 28);
 
     public int createId() {
         return nextId++;
@@ -65,6 +65,7 @@ public class FilmController {
     }
 
     private void validationFilm(Film film) throws ValidationException {
+        log.info(film.getReleaseDate().toString());
         if (film.getName().isEmpty() || film.getName().isBlank()) {
             throw new ValidationException("Название не может быть пустым");
         }

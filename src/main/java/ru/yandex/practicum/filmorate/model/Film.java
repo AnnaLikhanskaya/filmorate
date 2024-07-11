@@ -10,7 +10,7 @@ import java.time.LocalDate;
 @Builder(toBuilder = true)
 
 public class Film {
-    private int id;
+    private Integer id;
     @NotNull(message = "Название фильма не может быть пустым")
     @NotEmpty(message = "Не должно быть пустой строки")
     private String name;
@@ -19,7 +19,7 @@ public class Film {
     @Past(message = "Дата релиза должна быть в прошлом")
     private LocalDate releaseDate;
     @Positive(message = "Продолжительность фильма должна быть положительным числом")
-    private int duration;
+    private Integer duration;
 }
 
 
