@@ -26,14 +26,14 @@ public class UserControllerTest {
                 .birthday(LocalDate.of(2000, 4, 7)).name("имя")
                 .build();
 
-        assertThrows(NullPointerException.class, () -> userController.getUsers(userNameIsBlank)
-                , "Ошибка тестирования проверки пользователя с 'email', состоящим из пробелов.");
+        assertThrows(NullPointerException.class, () -> userController.getUsers(userNameIsBlank),
+                "Ошибка тестирования проверки пользователя с 'email', состоящим из пробелов.");
 
-        assertThrows(NullPointerException.class, () -> userController.getUsers(userloginIsNull)
-                , "Ошибка тестирования проверки фильма с 'login' = null.");
+        assertThrows(NullPointerException.class, () -> userController.getUsers(userloginIsNull),
+                "Ошибка тестирования проверки фильма с 'login' = null.");
 
-        assertThrows(NullPointerException.class, () -> userController.getUsers(userNameIsEmpty)
-                , "Ошибка тестирования проверки фильма с пустым 'name'.");
+        assertThrows(NullPointerException.class, () -> userController.getUsers(userNameIsEmpty),
+                "Ошибка тестирования проверки фильма с пустым 'name'.");
         assertThrows(NullPointerException.class, () -> userController.getUsers(userNameIsCorrectly));
 
     }
