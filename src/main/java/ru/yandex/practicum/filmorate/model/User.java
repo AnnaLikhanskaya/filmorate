@@ -17,9 +17,9 @@ public class User {
     private String email;
     @NotNull(message = "Логин не может быть null")
     @NotBlank(message = "Логин не может быть пустым")
+    private String login;
     @NotNull(message = "Имя пользователя не может быть пустым")
     @NotBlank(message = "Логин пользователя не может быть пустым")
-    private String login;
     private String name;
     @Past(message = "Дата рождения должна быть в прошлом")
     private LocalDate birthday;
