@@ -17,9 +17,9 @@ public class UserController {
 
     private final Map<Integer, User> users = new HashMap<>();
     private int id = 1;
-    private static final LocalDate DATA = LocalDate.now();
+    private static LocalDate DATA = LocalDate.now();
 
-    public int createId() {
+    private int createId() {
         return id++;
     }
 
@@ -34,15 +34,19 @@ public class UserController {
         return new ArrayList<>(value);
     }
 
+    private void setUserNameIfNeeded(User user) {
+        if (user.getName() == null || user.getName().isBlank()) {
+            user.setName(user.getLogin());
+        }
+    }
+
 
     @PostMapping
     public User postUsers(@Valid @RequestBody User user) {
         try {
             validationUser(user);
             user.setId(createId());
-            if (user.getName() == null || user.getName().isBlank()) {
-                user.setName(user.getLogin());
-            }
+            setUserNameIfNeeded(user);
             users.put(user.getId(), user);
             log.info("Пользователь " + user.getLogin() + " добавлен");
         } catch (RuntimeException e) {
@@ -57,9 +61,7 @@ public class UserController {
         try {
             validationUser(user);
             if (users.containsKey(user.getId())) {
-                if (user.getName() == null || user.getName().isBlank()) {
-                    user.setName(user.getLogin());
-                }
+                setUserNameIfNeeded(user);
                 users.replace(user.getId(), user);
                 log.info("Пользователь " + user.getLogin() + " обновлён");
             } else {

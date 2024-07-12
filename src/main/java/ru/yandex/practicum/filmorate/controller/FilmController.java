@@ -17,7 +17,7 @@ public class FilmController {
     private int nextId = 1;
     private static final LocalDate RELEASE_DATE = LocalDate.of(1895, 12, 28);
 
-    public int createId() {
+    private int createId() {
         return nextId++;
     }
 
@@ -39,7 +39,7 @@ public class FilmController {
             validationFilm(film);
             film.setId(createId());
             films.put(film.getId(), film);
-            log.info("Ваш фильм добавлен");
+            log.info("Ваш фильм добавлен " + film.getId() + ". Фильм называется " + film.getName());
         } catch (ValidationException e) {
             log.warn(e.getMessage());
             throw new ValidationException(e.getMessage());
@@ -55,7 +55,7 @@ public class FilmController {
                 films.replace(film.getId(), film);
                 log.info("Ваш фильм обновлен");
             } else {
-                throw new RuntimeException("Такого фильма не существует");
+                throw new RuntimeException("Фильм с ID " + film.getId() + " не существует");
             }
         } catch (ValidationException e) {
             log.warn(e.getMessage());
