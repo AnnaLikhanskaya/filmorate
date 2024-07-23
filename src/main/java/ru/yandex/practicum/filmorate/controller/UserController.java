@@ -37,7 +37,7 @@ public class UserController {
     @PutMapping
     public User updateUsers(@Valid @RequestBody User user) {
         userService.updateUser(user);
-        log.info("Пользователь " +user.getId() +  " изменен");
+        log.info("Пользователь " + user.getId() + " изменен");
         return user;
     }
 
@@ -61,7 +61,7 @@ public class UserController {
     @PutMapping("/{id}/friends/{friendId}")
     public void addToFriends(@PathVariable Integer id, @PathVariable Integer friendId) {
         userService.addToFriends(id, friendId);
-        log.info("Друг" + userService.getUserById(id)+ "добавлен");
+        log.info("Друг" + userService.getUserById(id) + "добавлен");
     }
 
     @DeleteMapping("/{id}/friends/{friendId}")
