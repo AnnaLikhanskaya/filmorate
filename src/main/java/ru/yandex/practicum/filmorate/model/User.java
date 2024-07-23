@@ -30,7 +30,6 @@ public class User {
     @Past(message = "День рождения не должен быть в будущем")
     private LocalDate birthday;
 
-
     public List<Integer> getFriends() {
         createFriends();
         return friends;
@@ -46,7 +45,7 @@ public class User {
         friends.remove(id);
     }
 
-    private void createFriends(){
+    private void createFriends() {
         if (friends == null) {
             friends = new ArrayList<>();
         }

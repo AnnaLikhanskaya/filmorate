@@ -50,7 +50,7 @@ public class FilmService {
     }
 
     public void addLike(Integer id, Integer userId) {
-        if(!userStorage.contains(userId)){
+        if (!userStorage.contains(userId)) {
             throw new NoExceptionObject("Такой пользователь не существует");
         }
         storage.getFilmById(id).addLike(userId);

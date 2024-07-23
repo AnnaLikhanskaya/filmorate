@@ -39,7 +39,7 @@ public class UserService {
     }
 
     private void checkLoginOnSpace(String login) {
-        if(login.contains(" ")){
+        if (login.contains(" ")) {
             throw new ValidationException("Логин не должен содержать пробелы");
         }
     }
