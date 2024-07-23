@@ -18,7 +18,7 @@ public class InMemoryUserStorage implements UserStorage {
         return id++;
     }
 
-    public boolean contains(Integer id){
+    public boolean contains(Integer id) {
         return users.containsKey(id);
     }
 
@@ -45,9 +45,9 @@ public class InMemoryUserStorage implements UserStorage {
 
     @Override
     public User getUserById(Integer id) {
-        if(users.containsKey(id)) {
+        if (users.containsKey(id)) {
             return users.get(id);
-        }else {
+        } else {
             throw new NoExceptionObject("Такого пользователя не существует");
         }
     }
