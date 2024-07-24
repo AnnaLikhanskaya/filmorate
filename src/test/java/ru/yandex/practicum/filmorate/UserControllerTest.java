@@ -1,40 +1,124 @@
 package ru.yandex.practicum.filmorate;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import ru.yandex.practicum.filmorate.controller.UserController;
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.context.ConfigurableApplicationContext;
+import ru.yandex.practicum.filmorate.adapter.LocalDateAdapter;
 import ru.yandex.practicum.filmorate.model.User;
 
+import java.io.IOException;
+import java.net.URI;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
 import java.time.LocalDate;
 
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertAll;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
+
+@SpringBootTest
 public class UserControllerTest {
-    protected UserController userController;
+    private ConfigurableApplicationContext context;
+    private final URI url = URI.create("http://localhost:8080/users");
+    private User nullLogin;
+    private User nullEmail;
+    private User incorrectLogin;
+    private User incorrectBirthday;
+    private User incorrectEmail;
+    private User nullName;
+    private User nonexistentId;
+
+    @BeforeEach
+    public void init() {
+        context = SpringApplication.run(FilmorateApplication.class);
+        nullLogin = new User(null, null, "mail@mail.ru", null,
+                "Имя", LocalDate.of(1946, 8, 20));
+        nullEmail = new User(null, null, null, null,
+                "Имя", LocalDate.of(1946, 8, 20));
+        incorrectLogin = new User(1, null, "mail@mail.ru",
+                "Ло гин", "Имя", LocalDate.of(1946, 8, 20));
+        incorrectBirthday = new User(null, null,
+                "mail@mail.ru", "Логин", "Имя", LocalDate.of(2050, 8, 20));
+        incorrectEmail = new User(null, null,
+                "mailmail.ru", "Логин", "Имя", LocalDate.of(1946, 8, 20));
+        nullName = new User(1, null,
+                "mail@mail.ru", "Логин", null, LocalDate.of(1946, 8, 20));
+        nonexistentId = new User(9999, null,
+                "mail@mail.ru", "Логин", "Имя", LocalDate.of(1946, 8, 20));
+    }
+
+    private int postToServer(User user) throws IOException, InterruptedException {
+        GsonBuilder gsonBuilder = new GsonBuilder()
+                .registerTypeAdapter(LocalDate.class, new LocalDateAdapter());
+        Gson gson = gsonBuilder.create();
+
+        String userSerialized = gson.toJson(user);
+
+        HttpClient client = HttpClient.newHttpClient();
+
+        final HttpRequest.BodyPublisher body = HttpRequest.BodyPublishers.ofString(userSerialized);
+
+        HttpRequest requestNullLogin = HttpRequest.newBuilder()
+                .uri(url)
+                .header("Content-Type", "application/json")
+                .POST(body).build();
+        HttpResponse<String> responseNullLogin = client.send(requestNullLogin, HttpResponse.BodyHandlers.ofString());
+        return responseNullLogin.statusCode();
+    }
+
+    private int putToServer(User user) throws IOException, InterruptedException {
+        GsonBuilder gsonBuilder = new GsonBuilder()
+                .registerTypeAdapter(LocalDate.class, new LocalDateAdapter());
+        Gson gson = gsonBuilder.create();
+        String userSerialized = gson.toJson(user);
+
+        HttpClient client = HttpClient.newHttpClient();
+
+        final HttpRequest.BodyPublisher body = HttpRequest.BodyPublishers.ofString(userSerialized);
+
+        HttpRequest requestNullLogin = HttpRequest.newBuilder()
+                .uri(url)
+                .header("Content-Type", "application/json")
+                .PUT(body).build();
+        HttpResponse<String> responseNullLogin = client.send(requestNullLogin, HttpResponse.BodyHandlers.ofString());
+        return responseNullLogin.statusCode();
+    }
+
 
     @Test
-    public void createdUserWithFailName() {
-        User userEmailIsBlank = User.builder().id(0).email("    ").login("логин")
-                .birthday(LocalDate.of(2000, 1, 4)).name("имя")
-                .build();
-        User userLoginIsNull = User.builder().id(1).email("email").login(" ")
-                .birthday(LocalDate.of(2000, 2, 5)).name("имя")
-                .build();
-        User userLoginIsEmpty = User.builder().id(2).email("email").login("имя")
-                .birthday(LocalDate.of(2000, 3, 6)).name("имя")
-                .build();
-        User userNameIsCorrectly = User.builder().id(3).email("email@mail.ru").login("login")
-                .birthday(LocalDate.of(2000, 4, 7)).name("имя")
-                .build();
+    void postUsers() {
+        assertAll(
+                () -> assertEquals(400, postToServer(nullLogin), "Логин не должен быть null, статус 400"),
+                () -> assertEquals(400, postToServer(incorrectLogin), "Логин не должен содержать пробелы, статус 400"),
+                () -> assertEquals(400, postToServer(incorrectEmail), "Email некоррекный, статус 400"),
+                () -> assertEquals(400, postToServer(nullEmail), "Email не должен быть null, статус 400"),
+                () -> assertEquals(400, postToServer(incorrectBirthday), "День рождения не должен быть в будующем, статус 400"),
+                () -> assertEquals(200, postToServer(nullName), "Имя может быть пустым, статус 200")
+        );
+    }
 
-        assertThrows(NullPointerException.class, () -> userController.postUsers(userEmailIsBlank),
-                "Ошибка тестирования проверки пользователя с 'email', состоящим из пробелов.");
+    @Test
+    void putUsers() throws IOException, InterruptedException {
+        postToServer(nullName);
+        assertAll(
+                () -> assertEquals(400, putToServer(nullLogin), "Логин не должен быть null, статус 400"),
+                () -> assertEquals(400, putToServer(incorrectLogin), "Логин не должен содержать пробелы, статус 400"),
+                () -> assertEquals(400, putToServer(incorrectEmail), "Email некоррекный, статус 400"),
+                () -> assertEquals(400, putToServer(nullEmail), "Email не должен быть null, статус 400"),
+                () -> assertEquals(400, putToServer(incorrectBirthday), "День рождения не должен быть в будующем, статус 400"),
+                () -> assertEquals(200, putToServer(nullName), "Имя может быть пустым, статус 200"),
+                () -> assertEquals(404, putToServer(nonexistentId), "Такого пользователя не существует, статус 404")
+        );
+    }
 
-        assertThrows(NullPointerException.class, () -> userController.postUsers(userLoginIsNull),
-                "Ошибка тестирования проверки  с 'login' = null.");
-
-        assertThrows(NullPointerException.class, () -> userController.postUsers(userLoginIsEmpty),
-                "Ошибка тестирования проверки  с пустым 'login'.");
-        assertThrows(NullPointerException.class, () -> userController.postUsers(userNameIsCorrectly));
-
+    @AfterEach
+    public void close() {
+        SpringApplication.exit(context);
     }
 }
