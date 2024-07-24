@@ -28,7 +28,7 @@ public class FilmService {
         return storage.getFilms();
     }
 
-    public Film releaseDate(Film film) {
+    private Film releaseDate(Film film) {
         if (film.getReleaseDate().isBefore(LocalDate.of(1895, 12, 28))) {
             throw new ValidationException("Фильм не может быть выпущен раньше 28.12.1895");
         }

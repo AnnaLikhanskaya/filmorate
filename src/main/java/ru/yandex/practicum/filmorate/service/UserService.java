@@ -79,10 +79,11 @@ public class UserService {
     public List<User> getMutualFriends(Integer id, Integer otherId) {
         User user = storage.getUserById(id);
         User friend = storage.getUserById(otherId);
+        List<Integer> friendFriendIds = friend.getFriends();
         if (user.getFriends() != null && friend.getFriends() != null) {
             return user.getFriends().stream()
+                    .filter(friendFriendIds::contains)
                     .map(storage::getUserById)
-                    .filter(u -> friend.getFriends().contains(u.getId()))
                     .collect(toList());
         } else {
             return new ArrayList<>();
