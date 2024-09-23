@@ -9,6 +9,7 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.context.ConfigurableApplicationContext;
 import ru.yandex.practicum.filmorate.adapter.LocalDateAdapter;
 import ru.yandex.practicum.filmorate.model.Film;
+import ru.yandex.practicum.filmorate.model.MPA;
 
 import java.io.IOException;
 import java.net.URI;
@@ -32,28 +33,28 @@ public class FilmControllerTest {
     private Film correctFilm;
     private Film nonexistentId;
 
-    @BeforeEach
-    public void init() {
-        context = SpringApplication.run(FilmorateApplication.class);
-        nullname = new Film(null, null, null,
-                "Описание", LocalDate.of(1946, 8, 20), 100);
-        incorrectDescription = new Film(null, null,
-                "Название", "ОписаниеОписаниеОписаниеОписаниеОписаниеОписаниеОписаниеОписаниеОписание" +
-                "ОписаниеОписаниеОписаниеОписаниеОписаниеОписаниеОписаниеОписаниеОписаниеОписаниеОписаниеОписаниеОпис" +
-                "аниеОписаниеОписаниеОписаниеОписание", LocalDate.of(1946, 8, 20), 100);
-        incorrectReleaseDate = new Film(null, null,
-                "Название", "Описание",
-                LocalDate.of(1884, 8, 20), 100);
-        negativeDuration = new Film(null, null,
-                "Название", "Описание",
-                LocalDate.of(1946, 8, 20), -3);
-        correctFilm = new Film(1, null,
-                "Название", "Описание",
-                LocalDate.of(1946, 8, 20), 100);
-        nonexistentId = new Film(9999, null,
-                "Название", "Описание",
-                LocalDate.of(1946, 8, 20), 100);
-    }
+//    @BeforeEach
+//    public void init() {
+//        context = SpringApplication.run(FilmorateApplication.class);
+//        nullname = new Film(null, null, null,
+//                "Описание", LocalDate.of(1946, 8, 20), 100);
+//        incorrectDescription = new Film(null, null,
+//                "Название", "ОписаниеОписаниеОписаниеОписаниеОписаниеОписаниеОписаниеОписаниеОписание" +
+//                "ОписаниеОписаниеОписаниеОписаниеОписаниеОписаниеОписаниеОписаниеОписаниеОписаниеОписаниеОписаниеОпис" +
+//                "аниеОписаниеОписаниеОписаниеОписание", LocalDate.of(1946, 8, 20), 100);
+//        incorrectReleaseDate = new Film(null, null,
+//                "Название", "Описание",
+//                LocalDate.of(1884, 8, 20), 100);
+//        negativeDuration = new Film(null, null,
+//                "Название", "Описание",
+//                LocalDate.of(1946, 8, 20), -3);
+//        correctFilm = new Film(1, null,
+//                "Название", "Описание",
+//                LocalDate.of(1946, 8, 20), 100);
+//        nonexistentId = new Film(9999, null,
+//                "Название", "Описание",
+//                LocalDate.of(1946, 8, 20), 100);
+//    }
 
     private int postToServer(Film film) throws IOException, InterruptedException {
         GsonBuilder gsonBuilder = new GsonBuilder()

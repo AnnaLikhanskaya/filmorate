@@ -7,16 +7,22 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import ru.yandex.practicum.filmorate.controller.FilmController;
+import ru.yandex.practicum.filmorate.controller.GenreController;
+import ru.yandex.practicum.filmorate.controller.MpaController;
 import ru.yandex.practicum.filmorate.controller.UserController;
+import ru.yandex.practicum.filmorate.exception.BadRequestException;
 import ru.yandex.practicum.filmorate.exception.NoExceptionObject;
+import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
 
 import java.util.Map;
 
-@RestControllerAdvice(assignableTypes = {FilmController.class, UserController.class})
+@RestControllerAdvice(assignableTypes = {FilmController.class,
+        UserController.class,
+        MpaController.class,
+        GenreController.class})
 @Slf4j
 public class ErrorHandler {
-
     @ExceptionHandler()
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public Map<String, String> handle(final MethodArgumentNotValidException e) {
@@ -42,4 +48,21 @@ public class ErrorHandler {
         log.warn(e.getMessage());
         return error;
     }
+
+    @ExceptionHandler()
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    public Map<String, String> handle(final NotFoundException e) {
+        Map<String, String> error = Map.of("error", e.getMessage());
+        log.warn(e.getMessage());
+        return error;
+    }
+
+    @ExceptionHandler()
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public Map<String, String> handle(final BadRequestException e) {
+        Map<String, String> error = Map.of("error", e.getMessage());
+        log.warn(e.getMessage());
+        return error;
+    }
 }
+
