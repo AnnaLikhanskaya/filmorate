@@ -22,10 +22,10 @@ public class FriendDbStorage extends BaseRepository<Friend> implements FriendSto
     @Override
     public List<Integer> getAllFriendsByUserId(int userId) {
         String sqlQuery = "SELECT * FROM FRIENDS WHERE USER_ID = ?";
-        return super.findMany(sqlQuery, userId).
-                stream().
-                map(Friend::getFriendId).
-                collect(Collectors.toList());
+        return super.findMany(sqlQuery, userId).stream()
+                .map(Friend::getFriendId)
+                .collect(Collectors.toList());
+
     }
 
     @Override
