@@ -21,9 +21,9 @@ public class GenreService {
         this.genreStorage = storage;
     }
 
-    public Map<Integer, List<Genre>> getAll() {
+    public List<Genre> getAll() {
         log.info("Получен запрос на список жанров");
-        return genreStorage.getAllGenresByFilmId();
+        return genreStorage.getAll();
     }
 
     public Optional<Genre> getById(Integer id) {

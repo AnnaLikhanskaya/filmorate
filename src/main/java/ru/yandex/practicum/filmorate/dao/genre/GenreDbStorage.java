@@ -42,6 +42,12 @@ public class GenreDbStorage extends BaseRepository<Genre> implements GenreStorag
     }
 
     @Override
+    public List<Genre> getAll() {
+        String sqlQuery = "SELECT * FROM GENRES";
+        return super.findMany(sqlQuery);
+    }
+
+    @Override
     public Optional<Genre> getById(Integer id) {
         String sqlQuery = "SELECT * FROM GENRES WHERE ID = ?";
         return super.findOne(sqlQuery, id);
