@@ -31,12 +31,12 @@ public class GenreDbStorage extends BaseRepository<Genre> implements GenreStorag
         String filmGenresQuery = "SELECT * FROM FILM_GENRE";
         SqlRowSet rowSet = jdbc.queryForRowSet(filmGenresQuery);
         while (rowSet.next()) {
-            int film_id = rowSet.getInt("film_id");
-            int genre_id = rowSet.getInt("genre_id");
-            if (!genresByFilmsId.containsKey(film_id)) {
-                genresByFilmsId.put(film_id, new ArrayList<>());
+            int filmId = rowSet.getInt("film_id");
+            int genreId = rowSet.getInt("genre_id");
+            if (!genresByFilmsId.containsKey(filmId)) {
+                genresByFilmsId.put(filmId, new ArrayList<>());
             }
-            genresByFilmsId.get(film_id).add(genres.get(genre_id));
+            genresByFilmsId.get(filmId).add(genres.get(genreId));
         }
         return genresByFilmsId;
     }
