@@ -7,7 +7,6 @@ import ru.yandex.practicum.filmorate.dao.MpaStorage;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.model.MPA;
 
-import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
