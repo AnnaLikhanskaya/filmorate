@@ -8,7 +8,11 @@ import ru.yandex.practicum.filmorate.dao.LikeStorage;
 import ru.yandex.practicum.filmorate.mappers.LikeRowMapper;
 import ru.yandex.practicum.filmorate.model.Like;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 @Repository
 public class LikeDbStorage extends BaseRepository<Like> implements LikeStorage {
@@ -37,5 +41,23 @@ public class LikeDbStorage extends BaseRepository<Like> implements LikeStorage {
         List<Like> likes = super.findMany(sqlQuery, filmId);
         return likes.stream()
                 .map(Like::getId).toList();
+    }
+
+    @Override
+    public HashMap<Integer, List<Integer>> getAllLikesByFilmId() {
+        String likesSqlQuery = "SELECT * FROM FILM_LIKES";
+        Map<Integer, Like> likes = super.findMany(likesSqlQuery).stream().collect(Collectors.toMap(Like::getId, like -> like));
+        HashMap<Integer, List<Integer>> likesByFilmsId = new HashMap<>();
+
+        likes.forEach((filmId, like) -> {
+            if (!likesByFilmsId.containsKey(filmId)) {
+                likesByFilmsId.put(filmId, new ArrayList<>(List.of(like.getId())));
+
+            }
+            likesByFilmsId.get(filmId).add(like.getId());
+
+        });
+
+        return likesByFilmsId;
     }
 }

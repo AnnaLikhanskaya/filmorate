@@ -9,6 +9,7 @@ import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.model.Genre;
 import ru.yandex.practicum.filmorate.service.GenreService;
 
+import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 
@@ -20,14 +21,17 @@ public class GenreController {
 
     @GetMapping
     public List<Genre> getAll() {
-        return service.getAll();
+        return service.getAll().values().stream()
+                .flatMap(List::stream)
+                .distinct()
+                .sorted(Comparator.comparingInt(Genre::getId)).toList();
     }
 
     @GetMapping("/{id}")
     public Genre getById(@PathVariable Integer id) {
         Optional<Genre> genre = service.getById(id);
         if (genre.isEmpty()) {
-            throw new NotFoundException("Жанр не найден");
+            throw new NotFoundException("Жанр не найден " + id);
         }
         return genre.get();
     }

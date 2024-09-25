@@ -8,8 +8,9 @@ import ru.yandex.practicum.filmorate.dao.MpaStorage;
 import ru.yandex.practicum.filmorate.mappers.MPARowMapper;
 import ru.yandex.practicum.filmorate.model.MPA;
 
-import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Repository
 public class MPADbStorage extends BaseRepository<MPA> implements MpaStorage {
@@ -20,9 +21,11 @@ public class MPADbStorage extends BaseRepository<MPA> implements MpaStorage {
     }
 
     @Override
-    public List<MPA> getAll() {
-        String sqlQuery = "SELECT * FROM MPA";
-        return super.findMany(sqlQuery);
+    public Map<Integer, MPA> getAll() {
+        String mpaQuery = "SELECT * FROM MPA";
+        Map<Integer, MPA> mpaMap = super.findMany(mpaQuery).stream()
+                .collect(Collectors.toMap(MPA::getId, mpa -> mpa));
+        return mpaMap;
     }
 
     @Override

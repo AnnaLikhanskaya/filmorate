@@ -19,7 +19,7 @@ public class MpaController {
 
     @GetMapping
     public List<MPA> getAll() {
-        return mpaService.getAll();
+        return mpaService.getAll().values().stream().toList();
     }
 
     @GetMapping("/{id}")

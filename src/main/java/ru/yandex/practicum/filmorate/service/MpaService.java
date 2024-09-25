@@ -8,6 +8,7 @@ import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.model.MPA;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 @Service
@@ -16,7 +17,7 @@ public class MpaService {
     @Autowired
     private MpaStorage mpaStorage;
 
-    public List<MPA> getAll() {
+    public Map<Integer, MPA> getAll() {
         log.info("Получен запрос на получение списка MPA-рейтинга");
         return mpaStorage.getAll();
     }

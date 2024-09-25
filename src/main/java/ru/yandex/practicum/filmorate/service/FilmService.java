@@ -16,9 +16,7 @@ import ru.yandex.practicum.filmorate.model.Genre;
 import ru.yandex.practicum.filmorate.model.MPA;
 
 import java.time.LocalDate;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -44,8 +42,18 @@ public class FilmService {
     public List<Film> getAllFilms() {
         log.info("Получен запрос на список всех фильмов");
         List<Film> films = filmsStorage.getFilms();
-        films.forEach(this::setFilmData);
-        return films;
+        Map<Integer, List<Integer>> likes = likeStorage.getAllLikesByFilmId();
+        Map<Integer, List<Genre>> genres = genreStorage.getAllGenresByFilmId();
+        Map<Integer, MPA> mpa = mpaStorage.getAll();
+        List<Film> list = new ArrayList<>();
+        for (Film film : films) {
+            film.setLikes(likes.get(film.getId()));
+            film.setGenres(genres.get(film.getId()));
+            film.setMpa(mpa.get(film.getMpa()));
+            list.add(film);
+        }
+        return list;
+
     }
 
     public Film addFilm(Film film) {

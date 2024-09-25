@@ -3,11 +3,12 @@ package ru.yandex.practicum.filmorate.dao;
 import ru.yandex.practicum.filmorate.model.Genre;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 
 public interface GenreStorage {
-    List<Genre> getAll();
+    Map<Integer, List<Genre>> getAllGenresByFilmId();
 
     Optional<Genre> getById(Integer id);
 

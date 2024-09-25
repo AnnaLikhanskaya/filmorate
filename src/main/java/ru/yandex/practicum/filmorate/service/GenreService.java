@@ -8,6 +8,7 @@ import ru.yandex.practicum.filmorate.dao.GenreStorage;
 import ru.yandex.practicum.filmorate.model.Genre;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 @Service
@@ -20,9 +21,9 @@ public class GenreService {
         this.genreStorage = storage;
     }
 
-    public List<Genre> getAll() {
+    public Map<Integer, List<Genre>> getAll() {
         log.info("Получен запрос на список жанров");
-        return genreStorage.getAll();
+        return genreStorage.getAllGenresByFilmId();
     }
 
     public Optional<Genre> getById(Integer id) {
