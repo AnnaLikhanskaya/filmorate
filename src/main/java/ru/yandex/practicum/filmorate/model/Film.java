@@ -10,7 +10,6 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDate;
-import java.util.ArrayList;
 import java.util.List;
 
 
@@ -30,34 +29,8 @@ public class Film {
     private LocalDate releaseDate;
     @NotNull(message = "Продолжительность не может отсутствовать")
     @Positive(message = "Продолжитьльность не может быть отрицательной")
-    private long duration;
-
-    public List<Integer> getLikes() {
-        createLikes();
-        return likes;
-    }
-
-    public void addLike(Integer id) {
-        createLikes();
-        likes.add(id);
-    }
-
-    public void deleteLike(Integer id) {
-        createLikes();
-        likes.remove(id);
-    }
-
-    public int getCountLikes() {
-        createLikes();
-        return likes.size();
-    }
-
-    private void createLikes() {
-        if (likes == null) {
-            likes = new ArrayList<>();
-        }
-    }
+    private Long duration;
+    @NotNull
+    private MPA mpa;
+    private List<Genre> genres;
 }
-
-
-
