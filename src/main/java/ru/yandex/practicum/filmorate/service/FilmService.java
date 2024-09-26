@@ -49,7 +49,7 @@ public class FilmService {
         for (Film film : films) {
             film.setLikes(likes.get(film.getId()));
             film.setGenres(genres.get(film.getId()));
-            film.setMpa(mpa.get(film.getMpa()));
+            film.setMpa(mpa.get(film.getMpa().getId()));
             list.add(film);
         }
         return list;
