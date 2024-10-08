@@ -5,15 +5,15 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.dao.FriendStorage;
+import ru.yandex.practicum.filmorate.dao.LikeStorage;
 import ru.yandex.practicum.filmorate.dao.UserStorage;
 import ru.yandex.practicum.filmorate.exception.NoExceptionObject;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
+import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.User;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Optional;
+import java.util.*;
 
 @Slf4j
 @Service
@@ -24,6 +24,10 @@ public class UserService {
     private UserStorage userStorage;
     @Autowired
     private FriendStorage friendStorage;
+    @Autowired
+    private LikeStorage likeStorage;
+    @Autowired
+    private FilmService filmService;
 
 
     public Collection<User> getUsers() {
@@ -116,7 +120,66 @@ public class UserService {
             throw new ValidationException("Логин не может содержать пробелы");
         }
     }
+
+    public List<Film> getRecommendations(Integer userId) {
+        Optional<User> optionalUser = userStorage.getUserById(userId);
+        if (optionalUser.isEmpty()) {
+            throw new NotFoundException("Пользователь не найден с ID: " + userId);
+        }
+
+        List<Integer> userLikedFilms = likeStorage.getUserLikes(userId);
+
+        Collection<User> allUsers = userStorage.getUsers();
+        allUsers.removeIf(user -> user.getId().equals(userId));
+
+        if (allUsers.isEmpty()) {
+            return new ArrayList<>();
+        }
+
+        Map<Integer, List<Integer>> otherUsersLikes = new HashMap<>();
+        for (User user : allUsers) {
+            List<Integer> likedFilms = likeStorage.getUserLikes(user.getId());
+            otherUsersLikes.put(user.getId(), likedFilms);
+        }
+
+        int maxCommonLikes = 0;
+        List<Integer> bestUserIds = new ArrayList<>();
+        for (Map.Entry<Integer, List<Integer>> entry : otherUsersLikes.entrySet()) {
+            Integer otherUserId = entry.getKey();
+            List<Integer> otherUserLikedFilms = entry.getValue();
+
+            Set<Integer> commonLikes = new HashSet<>(userLikedFilms);
+            commonLikes.retainAll(otherUserLikedFilms);
+            int commonLikesSize = commonLikes.size();
+
+            if (commonLikesSize > maxCommonLikes) {
+                maxCommonLikes = commonLikesSize;
+                bestUserIds.clear();
+                bestUserIds.add(otherUserId);
+            } else if (commonLikesSize == maxCommonLikes) {
+                bestUserIds.add(otherUserId);
+            }
+        }
+
+        if (maxCommonLikes == 0) {
+            return new ArrayList<>();
+        }
+
+        Set<Integer> recommendationsFilmIds = new HashSet<>();
+        for (Integer bestUserId : bestUserIds) {
+            List<Integer> bestUserLikedFilms = otherUsersLikes.get(bestUserId);
+            for (Integer filmId : bestUserLikedFilms) {
+                if (!userLikedFilms.contains(filmId)) {
+                    recommendationsFilmIds.add(filmId);
+                }
+            }
+        }
+
+        List<Film> recommendations = new ArrayList<>();
+        for (Integer filmId : recommendationsFilmIds) {
+            Film film = filmService.getFilmById(filmId);
+            recommendations.add(film);
+        }
+        return recommendations;
+    }
 }
-
-
-

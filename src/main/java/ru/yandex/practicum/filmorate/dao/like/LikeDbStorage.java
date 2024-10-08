@@ -60,4 +60,10 @@ public class LikeDbStorage extends BaseRepository<Like> implements LikeStorage {
 
         return likesByFilmsId;
     }
+
+    @Override
+    public List<Integer> getUserLikes(int userId) {
+        String sqlQuery = "SELECT film_id FROM film_likes WHERE user_id = ?";
+        return jdbc.queryForList(sqlQuery, Integer.class, userId);
+    }
 }
