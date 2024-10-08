@@ -100,7 +100,7 @@ public class UserRecommendationTest {
     }
 
     @Test
-    public void UserExistsWithRecommendations() {
+    public void userExistsWithRecommendations() {
         List<Film> recommendations = userService.getRecommendations(user1.getId());
 
         Assertions.assertEquals(1, recommendations.size(), "Должна быть одна рекомендация");
@@ -108,7 +108,7 @@ public class UserRecommendationTest {
     }
 
     @Test
-    public void UserExistsNoRecommendations() {
+    public void userExistsNoRecommendations() {
         likeStorage.addLike(user1.getId(), film3.getId());
         List<Film> recommendations = userService.getRecommendations(user1.getId());
 
@@ -116,7 +116,7 @@ public class UserRecommendationTest {
     }
 
     @Test
-    public void UserDoesNotExist() {
+    public void userDoesNotExist() {
         Integer nonExistentUserId = 999;
 
         Assertions.assertThrows(NotFoundException.class, () -> {
@@ -125,7 +125,7 @@ public class UserRecommendationTest {
     }
 
     @Test
-    public void NoSimilarUsers() {
+    public void noSimilarUsers() {
         List<Film> recommendations = userService.getRecommendations(user3.getId());
 
         Assertions.assertEquals(2, recommendations.size(), "Должно быть две рекомендации");
@@ -134,7 +134,7 @@ public class UserRecommendationTest {
     }
 
     @Test
-    public void SameNumberOfCommonLikes() {
+    public void sameNumberOfCommonLikes() {
         likeStorage.deleteLike(user2.getId(), film2.getId());
         List<Film> recommendations = userService.getRecommendations(user1.getId());
 
