@@ -27,18 +27,15 @@ public class DirectorServiceTest {
 
     @BeforeEach
     void setUp() {
-        director1 = new Director(1, "Режиссёр 1");
-        director2 = new Director(2, "Режиссёр 2");
-        directorStorage.addDirector(director1);
-        directorStorage.addDirector(director2);
+        director1 = directorStorage.addDirector(new Director(1, "Режиссёр 1"));
+        director2 = directorStorage.addDirector(new Director(2, "Режиссёр 2"));
     }
 
     @Test
     void testAddDirector() {
-        Director newDirector = new Director(3, "Новый Режиссёр");
-        Director addedDirector = directorService.addDirector(newDirector);
-        assertNotNull(addedDirector);
-        assertEquals("Новый Режиссёр", addedDirector.getName());
+        Director newDirector = directorService.addDirector(new Director(3, "Новый Режиссёр"));
+        assertNotNull(newDirector);
+        assertEquals("Новый Режиссёр", newDirector.getName());
     }
 
     @Test
@@ -50,7 +47,7 @@ public class DirectorServiceTest {
 
     @Test
     void testGetDirectorById() {
-        Director director = directorService.getDirectorById(1);
+        Director director = directorService.getDirectorById(director1.getId());
         assertNotNull(director);
         assertEquals("Режиссёр 1", director.getName());
     }
