@@ -136,4 +136,27 @@ public class FilmService {
             throw new ValidationException("Фильм не может быть выпущен раньше 28.12.1895");
         }
     }
+
+    public List<Film> getFilmsByIds(Set<Integer> filmIds) {
+        List<Film> recommendations = new ArrayList<>();
+        for (Integer filmId : filmIds) {
+            Film film = getFilmById(filmId);
+            recommendations.add(film);
+        }
+        return recommendations;
+    }
+
+    public Set<Integer> collectRecommendations(List<Integer> bestUserIds, Map<Integer, List<Integer>> otherUsersLikes,
+                                                List<Integer> userLikedFilms) {
+        Set<Integer> recommendationsFilmIds = new HashSet<>();
+        for (Integer bestUserId : bestUserIds) {
+            List<Integer> bestUserLikedFilms = otherUsersLikes.get(bestUserId);
+            for (Integer filmId : bestUserLikedFilms) {
+                if (!userLikedFilms.contains(filmId)) {
+                    recommendationsFilmIds.add(filmId);
+                }
+            }
+        }
+        return recommendationsFilmIds;
+    }
 }

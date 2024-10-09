@@ -121,29 +121,30 @@ public class UserService {
         }
     }
 
-    public List<Film> getRecommendations(Integer userId) {
-        Optional<User> optionalUser = userStorage.getUserById(userId);
-        if (optionalUser.isEmpty()) {
-            throw new NotFoundException("Пользователь не найден с ID: " + userId);
-        }
+    private User getUserOrThrow(Integer userId) {
+        return userStorage.getUserById(userId)
+                .orElseThrow(() -> new NotFoundException("Пользователь не найден с ID: " + userId));
+    }
 
-        List<Integer> userLikedFilms = likeStorage.getUserLikes(userId);
-
+    private Collection<User> getOtherUsers(Integer userId) {
         Collection<User> allUsers = userStorage.getUsers();
         allUsers.removeIf(user -> user.getId().equals(userId));
+        return allUsers;
+    }
 
-        if (allUsers.isEmpty()) {
-            return new ArrayList<>();
-        }
-
+    private Map<Integer, List<Integer>> getOtherUsersLikes(Collection<User> otherUsers) {
         Map<Integer, List<Integer>> otherUsersLikes = new HashMap<>();
-        for (User user : allUsers) {
+        for (User user : otherUsers) {
             List<Integer> likedFilms = likeStorage.getUserLikes(user.getId());
             otherUsersLikes.put(user.getId(), likedFilms);
         }
+        return otherUsersLikes;
+    }
 
+    private List<Integer> findBestUserIds(List<Integer> userLikedFilms, Map<Integer, List<Integer>> otherUsersLikes) {
         int maxCommonLikes = 0;
         List<Integer> bestUserIds = new ArrayList<>();
+
         for (Map.Entry<Integer, List<Integer>> entry : otherUsersLikes.entrySet()) {
             Integer otherUserId = entry.getKey();
             List<Integer> otherUserLikedFilms = entry.getValue();
@@ -160,26 +161,27 @@ public class UserService {
                 bestUserIds.add(otherUserId);
             }
         }
+        return maxCommonLikes > 0 ? bestUserIds : Collections.emptyList();
+    }
 
-        if (maxCommonLikes == 0) {
-            return new ArrayList<>();
+    public List<Film> getRecommendations(Integer userId) {
+        User user = getUserOrThrow(userId);
+        List<Integer> userLikedFilms = likeStorage.getUserLikes(userId);
+
+        Collection<User> otherUsers = getOtherUsers(userId);
+
+        if (otherUsers.isEmpty()) {
+            return Collections.emptyList();
         }
 
-        Set<Integer> recommendationsFilmIds = new HashSet<>();
-        for (Integer bestUserId : bestUserIds) {
-            List<Integer> bestUserLikedFilms = otherUsersLikes.get(bestUserId);
-            for (Integer filmId : bestUserLikedFilms) {
-                if (!userLikedFilms.contains(filmId)) {
-                    recommendationsFilmIds.add(filmId);
-                }
-            }
+        Map<Integer, List<Integer>> otherUsersLikes = getOtherUsersLikes(otherUsers);
+        List<Integer> bestUserIds = findBestUserIds(userLikedFilms, otherUsersLikes);
+
+        if (bestUserIds.isEmpty()) {
+            return Collections.emptyList();
         }
 
-        List<Film> recommendations = new ArrayList<>();
-        for (Integer filmId : recommendationsFilmIds) {
-            Film film = filmService.getFilmById(filmId);
-            recommendations.add(film);
-        }
-        return recommendations;
+        Set<Integer> recommendationsFilmIds = filmService.collectRecommendations(bestUserIds, otherUsersLikes, userLikedFilms);
+        return filmService.getFilmsByIds(recommendationsFilmIds);
     }
 }
