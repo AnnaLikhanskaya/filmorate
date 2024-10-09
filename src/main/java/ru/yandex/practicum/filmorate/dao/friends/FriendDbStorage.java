@@ -41,4 +41,5 @@ public class FriendDbStorage extends BaseRepository<Friend> implements FriendSto
         super.delete("DELETE FROM FRIENDS where USER_ID = ? and FRIEND_ID = ?",
                 userId, friendId);
     }
+
 }

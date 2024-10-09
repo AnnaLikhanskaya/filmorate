@@ -1,6 +1,7 @@
 package ru.yandex.practicum.filmorate.controller;
 
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.Pattern;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -61,5 +62,15 @@ public class FilmController {
     public List<Film> getPopularFilms(@RequestParam(defaultValue = "10") Integer count) {
         log.info("Получен запрос на список популярных фильмов");
         return filmService.getPopularFilms(count);
+    }
+
+    @GetMapping("/director/{directorId}")
+    public List<Film> getFilmsByDirector(@PathVariable Integer directorId,
+                                         @RequestParam(required = false, defaultValue = "year")
+                                         @Pattern(regexp = "^(year|likes)$",
+                                                 message = "Не корректный тип сортировки") String sortBy) {
+
+        log.info("Получен запрос на список фильмов у режиссёра: " + directorId);
+        return filmService.getFilmsByDirector(directorId, sortBy);
     }
 }
