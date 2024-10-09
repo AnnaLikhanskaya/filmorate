@@ -49,7 +49,7 @@ public class DirectorController {
 
     @DeleteMapping("/{id}")
     public void deleteDirector(@PathVariable Integer id) {
-        log.info("У фильма {} удален лайк", id);
+        log.info("У фильма {} удален режиссёр", id);
         directorService.deleteDirector(id);
     }
 

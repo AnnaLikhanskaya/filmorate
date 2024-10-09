@@ -46,9 +46,8 @@ public class DirectorDbStorage extends BaseRepository<Director> implements Direc
 
     @Override
     public Director updateDirector(Director director) {
-        super.update("UPDATE DIRECTOR SET " +
-                        "NAME = ?",
-                director.getName());
+        super.update("UPDATE DIRECTOR SET NAME = ? WHERE ID = ?",
+                director.getName(), director.getId());
         return director;
     }
 

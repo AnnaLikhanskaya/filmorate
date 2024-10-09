@@ -95,7 +95,7 @@ public class FilmService {
         }
         Film createdFilm = filmsStorage.addFilm(film);
         assignGenresToFilm(film.getGenres(), createdFilm.getId());
-        assignDirectorsToFilm(film.getDirectors(), film.getId());
+        assignDirectorsToFilm(film.getDirectors(), createdFilm.getId());
         return setFilmData(createdFilm);
     }
 
