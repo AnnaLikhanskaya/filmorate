@@ -1,8 +1,8 @@
 package ru.yandex.practicum.filmorate;
+import lombok.RequiredArgsConstructor;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.transaction.annotation.Transactional;
@@ -20,16 +20,11 @@ import java.util.List;
 @SpringBootTest
 @Transactional
 @ActiveProfiles("test")
+@RequiredArgsConstructor
 public class UserRecommendationTest {
-
-    @Autowired
-    private UserService userService;
-
-    @Autowired
-    private FilmService filmService;
-
-    @Autowired
-    private LikeStorage likeStorage;
+    private final UserService userService;
+    private final LikeStorage likeStorage;
+    private final FilmService filmService;
 
     private User user1;
     private User user2;
