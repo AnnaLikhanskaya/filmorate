@@ -17,4 +17,5 @@ public interface FilmStorage {
 
     Optional<Film> getFilmById(Integer filmId);
 
+    List<Film> getPopular(Integer count, Integer genreId, Integer year);
 }
