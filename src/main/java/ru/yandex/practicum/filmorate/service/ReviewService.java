@@ -24,15 +24,11 @@ public class ReviewService {
 
     public Review addReview(Review review) {
         log.info("addReview...");
-        if (review == null){
+        if (review == null) {
             // В метод передали пустой объект
             log.error("addReview: object review is null");
             throw new NullPointerException("review is null");
         }
-        /* todo Может ли пользователь на один фильм давать несколько отзывов?
-        *  На обсуждении у команды
-        */
-
         checkUserAndFilm(review);
         // Инициализируем рейтинг полезности
         review.setUseful(0);
@@ -65,14 +61,14 @@ public class ReviewService {
     }
 
     private void existsReviewByid(Integer reviewId) {
-        if (reviewId == null){
+        if (reviewId == null) {
             throw new BadRequestException("reviewId is null");
         }
         boolean existsReview = reviewStorage.existsById(reviewId);
-        if (existsReview){
+        if (existsReview) {
             return;
         }
-        throw  new NotFoundException("review not found");
+        throw new NotFoundException("review not found");
     }
 
     public Review getById(int reviewId) {
@@ -88,7 +84,7 @@ public class ReviewService {
         existsReviewByid(reviewId);
 
         boolean deleteSuccess = reviewStorage.deleteReviewById(reviewId);
-        if (!deleteSuccess){
+        if (!deleteSuccess) {
             throw new NotFoundException("Not delete review");
         }
     }
