@@ -2,25 +2,30 @@ package ru.yandex.practicum.filmorate.controller;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.model.Review;
+import ru.yandex.practicum.filmorate.service.ReviewService;
 
 import java.util.List;
 
 @RestController
 @RequestMapping("/reviews")
-@RequiredArgsConstructor(onConstructor_ = @Autowired)
+@RequiredArgsConstructor
+@Slf4j
 public class ReviewController {
+    private final ReviewService reviewService;
 
     @PostMapping
     public Review create(@Valid @RequestBody Review review) {
-        return null;
+        log.info("Получен запрос на добавление отзыва о фильме");
+        return reviewService.addReview(review);
     }
 
     @PutMapping
     public Review update(@Valid @RequestBody Review review) {
-        return null;
+        log.info("Получен запрос на обновление отзыва о фильме");
+        return reviewService.updateReview(review);
     }
 
     @GetMapping("/{reviewId}")

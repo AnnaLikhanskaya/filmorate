@@ -10,7 +10,7 @@ import lombok.NonNull;
 @AllArgsConstructor
 @NoArgsConstructor(force = true)
 public class Review {
-    private Integer id;
+    private Integer reviewId;
     @NonNull
     @NotBlank
     private String content;
