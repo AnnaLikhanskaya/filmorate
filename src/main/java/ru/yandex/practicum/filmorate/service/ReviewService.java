@@ -61,11 +61,14 @@ public class ReviewService {
     }
 
     private void chekExistsReview(Review review) {
-        Optional<Review> reviewOptional = reviewStorage.getById(review.getReviewId());
+        getById(review.getReviewId());
+    }
+
+    public Review getById(int reviewId) {
+        Optional<Review> reviewOptional = reviewStorage.getById(reviewId);
         if (reviewOptional.isPresent()) {
-            return;
+            return reviewOptional.get();
         }
         throw new NotFoundException("review not found");
     }
-
 }

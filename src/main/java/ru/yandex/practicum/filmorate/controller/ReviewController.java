@@ -30,7 +30,8 @@ public class ReviewController {
 
     @GetMapping("/{reviewId}")
     public Review getById(@PathVariable int reviewId) {
-        return null;
+        log.info("Получен запрос на получение отзыва по id: {}", reviewId);
+        return reviewService.getById(reviewId);
     }
 
     @DeleteMapping("/{reviewId}")
