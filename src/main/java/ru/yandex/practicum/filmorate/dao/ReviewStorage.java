@@ -22,4 +22,6 @@ public interface ReviewStorage {
     List<Review> getTopReviews(int count);
 
     int addReviewLikeOrDislike(int reviewId, int userId, boolean isLike);
+
+    boolean deleteReviewLikeOrDislike(int reviewId, int userId, boolean isLike);
 }

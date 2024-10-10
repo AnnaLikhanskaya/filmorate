@@ -71,7 +71,7 @@ public class ReviewDbStorage extends BaseRepository<Review> implements ReviewSto
             throw new BadRequestException("reviewId is null");
         }
         String query = "SELECT (EXISTS (SELECT 1 FROM reviews WHERE id=?))";
-        return super.existsById(query, reviewId);
+        return super.exists(query, reviewId);
     }
 
     @Override
@@ -96,6 +96,10 @@ public class ReviewDbStorage extends BaseRepository<Review> implements ReviewSto
 
     @Override
     public int addReviewLikeOrDislike(int reviewId, int userId, boolean isLike) {
+        if (existsReviewLikes(reviewId, userId, !isLike)){
+           deleteReviewLikeOrDislike(reviewId, userId, !isLike);
+        }
+
         String query = "INSERT INTO review_likes (user_id, review_id, is_like) VALUES (?, ?, ?)";
         int inserted = super.insert(query, userId, reviewId, isLike);
         if (inserted > 0) {
@@ -104,9 +108,28 @@ public class ReviewDbStorage extends BaseRepository<Review> implements ReviewSto
         return inserted;
     }
 
+    private boolean existsReviewLikes(int reviewId, int userId, boolean isLike) {
+        String query = "SELECT (EXISTS (SELECT 1 FROM REVIEW_LIKES WHERE review_id = ? AND user_id = ? and is_like = ?))";
+        return super.exists(query, reviewId, userId, isLike);
+    }
+
     private void updateUsefulReview(int reviewId, boolean isLike) {
         String plusMinus = isLike ? "+1" : "-1";
         String query = "UPDATE reviews SET useful = useful" + plusMinus + " WHERE id=?";
+        System.out.println(query);
+        System.out.println(reviewId);
         super.update(query, reviewId);
+        Optional<Review> one = super.findOne("select * from reviews where id = ?", reviewId);
+        System.out.println(one.get());
+    }
+
+    @Override
+    public boolean deleteReviewLikeOrDislike(int reviewId, int userId, boolean isLike) {
+        String query = "DELETE FROM review_likes WHERE user_id=? AND review_id=? AND is_like=?";
+        boolean deleted = super.delete(query, userId, reviewId, isLike);
+        if (deleted) {
+            updateUsefulReview(reviewId, !isLike);
+        }
+        return deleted;
     }
 }

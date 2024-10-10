@@ -61,11 +61,13 @@ public class ReviewController {
 
     @DeleteMapping("/{reviewId}/dislike/{userId}")
     public void deleteReviewDislike(@PathVariable int reviewId, @PathVariable int userId) {
-        ;
+        log.info("Получен запрос удаления dislike отзыву reviewId: {}, userId: {}", reviewId, userId);
+        reviewService.deleteReviewLikeOrDislike(reviewId, userId, false);
     }
 
     @DeleteMapping("/{reviewId}/like/{userId}")
     public void deleteReviewLike(@PathVariable int reviewId, @PathVariable int userId) {
-        ;
+        log.info("Получен запрос удаления like отзыву reviewId: {}, userId: {}", reviewId, userId);
+        reviewService.deleteReviewLikeOrDislike(reviewId, userId, true);
     }
 }

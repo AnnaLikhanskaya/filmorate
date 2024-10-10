@@ -62,7 +62,7 @@ public class BaseRepository<T> {
         }
     }
 
-    public boolean existsById(String query, Object... params) {
+    public boolean exists(String query, Object... params) {
         SqlRowSet srs = jdbc.queryForRowSet(query, params);
         srs.next();
         return srs.getBoolean(1);

@@ -117,4 +117,12 @@ public class ReviewService {
             throw new NotFoundException(message);
         }
     }
+
+    public void deleteReviewLikeOrDislike(int reviewId, int userId, boolean isLike) {
+        checkReviewAndUser(reviewId, userId);
+        boolean deleted = reviewStorage.deleteReviewLikeOrDislike(reviewId, userId, isLike);
+        if (!deleted) {
+            throw new NotFoundException("User with id " + userId + " didn't like review with id " + reviewId);
+        }
+    }
 }
