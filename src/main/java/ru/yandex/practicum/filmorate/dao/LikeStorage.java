@@ -11,4 +11,6 @@ public interface LikeStorage {
     List<Integer> getFilmLikes(int filmId);
 
     HashMap<Integer, List<Integer>> getAllLikesByFilmId();
+
+    List<Integer> getUserLikes(int userId);
 }

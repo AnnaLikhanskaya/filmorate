@@ -6,10 +6,12 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.service.UserService;
 
 import java.util.Collection;
+import java.util.List;
 import java.util.Optional;
 
 @RestController
@@ -67,6 +69,11 @@ public class UserController {
     public void deleteFriends(@PathVariable Integer id, @PathVariable Integer friendId) {
         userService.removeFromFriends(id, friendId);
         log.info("Друг" + id + "удален");
+    }
+
+    @GetMapping("/{id}/recommendations")
+    public List<Film> getRecommendations(@PathVariable Integer id) {
+        return userService.getRecommendations(id);
     }
 }
 
