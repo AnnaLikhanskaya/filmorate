@@ -30,20 +30,21 @@ public class ReviewController {
 
     @GetMapping("/{reviewId}")
     public Review getById(@PathVariable int reviewId) {
-        log.info("Получен запрос на получение отзыва по id: {}", reviewId);
+        log.info("Получен запрос отзыва по id: {}", reviewId);
         return reviewService.getById(reviewId);
     }
 
     @DeleteMapping("/{reviewId}")
     public void deleteById(@PathVariable int reviewId) {
-        log.info("Получен запрос на удаление отзыва по id: {}", reviewId);
+        log.info("Получен запрос удаления отзыва по id: {}", reviewId);
         reviewService.deleteReviewByid(reviewId);
     }
 
     @GetMapping
     public List<Review> getByFilmId(@RequestParam(defaultValue = "0") int filmId,
                                     @RequestParam(defaultValue = "10") int count) {
-        return null;
+        log.info("Получен запрос отзывов о фильме filmId: {}, count: {}", filmId, count);
+        return reviewService.getReviewByFilmOrAll(filmId, count);
     }
 
     @PutMapping("/{reviewId}/like/{userId}")

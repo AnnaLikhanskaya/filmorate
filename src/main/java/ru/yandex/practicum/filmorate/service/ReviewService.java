@@ -10,6 +10,7 @@ import ru.yandex.practicum.filmorate.exception.BadRequestException;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.model.Review;
 
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -94,5 +95,12 @@ public class ReviewService {
         if (!deleteSuccess){
             throw new NotFoundException("Not delete review");
         }
+    }
+
+    public List<Review> getReviewByFilmOrAll(int filmId, int count) {
+        if (filmId == 0) {
+            return reviewStorage.getTopReviews(count);
+        }
+        return reviewStorage.getReviewsByFilm(filmId, count);
     }
 }

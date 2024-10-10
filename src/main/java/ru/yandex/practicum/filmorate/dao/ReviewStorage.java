@@ -2,6 +2,7 @@ package ru.yandex.practicum.filmorate.dao;
 
 import ru.yandex.practicum.filmorate.model.Review;
 
+import java.util.List;
 import java.util.Optional;
 
 public interface ReviewStorage {
@@ -15,4 +16,8 @@ public interface ReviewStorage {
     boolean existsById(Integer reviewId);
 
     boolean deleteReviewById(int reviewId);
+
+    List<Review> getReviewsByFilm(int filmId, int count);
+
+    List<Review> getTopReviews(int count);
 }

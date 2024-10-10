@@ -9,6 +9,7 @@ import ru.yandex.practicum.filmorate.exception.BadRequestException;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.model.Review;
 
+import java.util.List;
 import java.util.Optional;
 
 @Repository
@@ -58,7 +59,7 @@ public class ReviewDbStorage extends BaseRepository<Review> implements ReviewSto
                 reviewId
         );
         Optional<Review> reviewOptional = getById(reviewId);
-        if (reviewOptional.isPresent()){
+        if (reviewOptional.isPresent()) {
             review = reviewOptional.get();
         }
         return review;
@@ -66,7 +67,7 @@ public class ReviewDbStorage extends BaseRepository<Review> implements ReviewSto
 
     @Override
     public boolean existsById(Integer reviewId) {
-        if (reviewId == null ){
+        if (reviewId == null) {
             throw new BadRequestException("reviewId is null");
         }
         String query = "SELECT (EXISTS (SELECT 1 FROM reviews WHERE id=?))";
@@ -77,5 +78,19 @@ public class ReviewDbStorage extends BaseRepository<Review> implements ReviewSto
     public boolean deleteReviewById(int reviewId) {
         String query = "DELETE FROM reviews WHERE id=?";
         return super.delete(query, reviewId);
+    }
+
+    @Override
+    public List<Review> getReviewsByFilm(int filmId, int count) {
+        String query = "SELECT id, user_id, film_id, is_positive, " +
+                "useful, content FROM reviews WHERE film_id = ? ORDER BY useful DESC limit ?";
+        return super.findMany(query, filmId, count);
+    }
+
+    @Override
+    public List<Review> getTopReviews(int count) {
+        String query = "SELECT id, user_id, film_id, is_positive, " +
+                "useful, content FROM reviews ORDER BY useful DESC limit ?";
+        return super.findMany(query, count);
     }
 }
