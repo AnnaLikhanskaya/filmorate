@@ -1,30 +1,31 @@
 package ru.yandex.practicum.filmorate.service;
 
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.dao.FriendStorage;
+import ru.yandex.practicum.filmorate.dao.LikeStorage;
 import ru.yandex.practicum.filmorate.dao.UserStorage;
 import ru.yandex.practicum.filmorate.exception.NoExceptionObject;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
+import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.User;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Optional;
+import java.util.*;
 
 @Slf4j
 @Service
+@RequiredArgsConstructor(onConstructor_ = @Autowired)
 public class UserService {
 
-    @Autowired
     @Qualifier("userDbStorage")
-    private UserStorage userStorage;
-    @Autowired
-    private FriendStorage friendStorage;
-
+    private final UserStorage userStorage;
+    private final FriendStorage friendStorage;
+    private final LikeStorage likeStorage;
+    private final FilmService filmService;
 
     public Collection<User> getUsers() {
         log.info("Получен запрос на список всех пользователей");
@@ -116,7 +117,87 @@ public class UserService {
             throw new ValidationException("Логин не может содержать пробелы");
         }
     }
+
+    private User getUserOrThrow(Integer userId) {
+        return userStorage.getUserById(userId)
+                .orElseThrow(() -> new NotFoundException("Пользователь не найден с ID: " + userId));
+    }
+
+    private Collection<User> getOtherUsers(Integer userId) {
+        Collection<User> allUsers = userStorage.getUsers();
+        allUsers.removeIf(user -> user.getId().equals(userId));
+        return allUsers;
+    }
+
+    private Map<Integer, List<Integer>> getOtherUsersLikes(Collection<User> otherUsers) {
+        Map<Integer, List<Integer>> otherUsersLikes = new HashMap<>();
+        for (User user : otherUsers) {
+            List<Integer> likedFilms = likeStorage.getUserLikes(user.getId());
+            otherUsersLikes.put(user.getId(), likedFilms);
+        }
+        return otherUsersLikes;
+    }
+
+    private List<Integer> findBestUserIds(List<Integer> userLikedFilms, Map<Integer, List<Integer>> otherUsersLikes) {
+        int maxCommonLikes = 0;
+        List<Integer> bestUserIds = new ArrayList<>();
+
+        for (Map.Entry<Integer, List<Integer>> entry : otherUsersLikes.entrySet()) {
+            Integer otherUserId = entry.getKey();
+            List<Integer> otherUserLikedFilms = entry.getValue();
+
+            Set<Integer> commonLikes = new HashSet<>(userLikedFilms);
+            commonLikes.retainAll(otherUserLikedFilms);
+            int commonLikesSize = commonLikes.size();
+
+            if (commonLikesSize > maxCommonLikes) {
+                maxCommonLikes = commonLikesSize;
+                bestUserIds.clear();
+                bestUserIds.add(otherUserId);
+            } else if (commonLikesSize == maxCommonLikes) {
+                bestUserIds.add(otherUserId);
+            }
+        }
+        return maxCommonLikes > 0 ? bestUserIds : Collections.emptyList();
+    }
+
+    public List<Film> getRecommendations(Integer userId) {
+
+        if (userId == null) {
+            throw new ValidationException("userId не может быть null");
+        }
+
+        User user = getUserOrThrow(userId);
+        List<Integer> userLikedFilms = likeStorage.getUserLikes(userId);
+
+        if (userLikedFilms == null) {
+            userLikedFilms = Collections.emptyList();
+        }
+
+        Collection<User> otherUsers = getOtherUsers(userId);
+
+        if (otherUsers == null || otherUsers.isEmpty()) {
+            return Collections.emptyList();
+        }
+
+        Map<Integer, List<Integer>> otherUsersLikes = getOtherUsersLikes(otherUsers);
+
+        if (otherUsersLikes == null || otherUsersLikes.isEmpty()) {
+            return Collections.emptyList();
+        }
+
+        List<Integer> bestUserIds = findBestUserIds(userLikedFilms, otherUsersLikes);
+
+        if (bestUserIds == null || bestUserIds.isEmpty()) {
+            return Collections.emptyList();
+        }
+
+        Set<Integer> recommendationsFilmIds = filmService.collectRecommendations(bestUserIds, otherUsersLikes, userLikedFilms);
+
+        if (recommendationsFilmIds == null || recommendationsFilmIds.isEmpty()) {
+            return Collections.emptyList();
+        }
+
+        return filmService.getFilmsByIds(recommendationsFilmIds);
+    }
 }
-
-
-

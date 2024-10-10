@@ -1,8 +1,7 @@
 package ru.yandex.practicum.filmorate.service;
 
-import lombok.extern.slf4j.Slf4j;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.dao.DirectorStorage;
 import ru.yandex.practicum.filmorate.model.Director;
@@ -13,17 +12,12 @@ import java.util.Optional;
 import static ru.yandex.practicum.filmorate.validation.DirectorValidation.validationDirector;
 import static ru.yandex.practicum.filmorate.validation.DirectorValidation.validationIsExsist;
 
+@RequiredArgsConstructor(onConstructor_ = @Autowired)
 @Service
-@Slf4j
 public class DirectorService {
 
     private final DirectorStorage directorStorage;
 
-    @Autowired
-    public DirectorService(@Qualifier("directorDbStorage") DirectorStorage directorStorage) {
-
-        this.directorStorage = directorStorage;
-    }
 
     public List<Director> getAllDirectors() {
         return directorStorage.getDirectors();

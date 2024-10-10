@@ -8,7 +8,11 @@ import org.junit.jupiter.api.Test;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.ConfigurableApplicationContext;
+
 import ru.yandex.practicum.filmorate.FilmorateApplication;
+
+import org.springframework.test.context.ActiveProfiles;
+
 import ru.yandex.practicum.filmorate.adapter.LocalDateAdapter;
 import ru.yandex.practicum.filmorate.model.User;
 
@@ -24,6 +28,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 
 @SpringBootTest
+@ActiveProfiles("test")
 public class UserControllerTest {
     private ConfigurableApplicationContext context;
     private final URI url = URI.create("http://localhost:8080/users");

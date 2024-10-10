@@ -12,7 +12,11 @@ import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabas
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.ConfigurableApplicationContext;
+
 import ru.yandex.practicum.filmorate.FilmorateApplication;
+
+import org.springframework.test.context.ActiveProfiles;
+
 import ru.yandex.practicum.filmorate.adapter.LocalDateAdapter;
 import ru.yandex.practicum.filmorate.model.Film;
 
@@ -30,6 +34,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 @AutoConfigureTestDatabase
 @RequiredArgsConstructor(onConstructor_ = @Autowired)
 @AutoConfigureMockMvc
+@ActiveProfiles("test")
 public class FilmControllerTest {
 
     private ConfigurableApplicationContext context;

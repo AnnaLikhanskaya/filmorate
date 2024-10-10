@@ -1,8 +1,8 @@
 package ru.yandex.practicum.filmorate.service;
 
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.dao.*;
 import ru.yandex.practicum.filmorate.exception.BadRequestException;
@@ -20,6 +20,7 @@ import java.util.stream.Stream;
 
 import static ru.yandex.practicum.filmorate.validation.DirectorValidation.validationIsExsist;
 
+@RequiredArgsConstructor(onConstructor_ = @Autowired)
 @Service
 @Slf4j
 public class FilmService {
@@ -30,18 +31,6 @@ public class FilmService {
     private final MpaStorage mpaStorage;
     private final DirectorStorage directorStorage;
 
-    @Autowired
-    public FilmService(@Qualifier("filmDbStorage") FilmStorage storage,
-                       @Qualifier("likeDbStorage") LikeStorage likeStorage,
-                       @Qualifier("genreDbStorage") GenreStorage genreStorage,
-                       @Qualifier("MPADbStorage") MpaStorage mpaStorage,
-                       @Qualifier("directorDbStorage") DirectorStorage directorStorage) {
-        this.filmsStorage = storage;
-        this.likeStorage = likeStorage;
-        this.genreStorage = genreStorage;
-        this.mpaStorage = mpaStorage;
-        this.directorStorage = directorStorage;
-    }
 
     public List<Film> getAllFilms() {
         log.info("Получен запрос на список всех фильмов");
@@ -100,12 +89,13 @@ public class FilmService {
     }
 
     public Film updateFilm(Film film) {
-        log.info("Получен запрос на обнавление фильма");
+        if (film == null) throw new BadRequestException("Некоррктное тело запроса");
+        log.info("Получен запрос на обновление фильма");
         checkFilmDate(film);
         genreStorage.deleteGenresByFilmId(film.getId());
         directorStorage.deleteDirectorsByFilmId(film.getId());
-        assignGenresToFilm(film.getGenres(), film.getId());
-        assignDirectorsToFilm(film.getDirectors(), film.getId());
+        if (film.getGenres() != null) assignGenresToFilm(film.getGenres(), film.getId());
+        if (film.getDirectors() != null) assignDirectorsToFilm(film.getDirectors(), film.getId());
         return setFilmData(filmsStorage.updateFilms(film));
     }
 
@@ -166,6 +156,8 @@ public class FilmService {
     }
 
     private Film setFilmData(Film film) {
+        if (film == null) throw new NotFoundException("Фильм не отсутствует");
+        if (film.getId() == null) throw new BadRequestException("Не корректный фильм");
         film.setGenres(genreStorage.getByFilmId(film.getId()));
         film.setLikes(likeStorage.getFilmLikes(film.getId()));
         film.setMpa(mpaStorage.getById(film.getMpa().getId()).orElseGet(null));
@@ -177,5 +169,28 @@ public class FilmService {
         if (film.getReleaseDate().isBefore(LocalDate.of(1895, 12, 28))) {
             throw new ValidationException("Фильм не может быть выпущен раньше 28.12.1895");
         }
+    }
+
+    public List<Film> getFilmsByIds(Set<Integer> filmIds) {
+        List<Film> recommendations = new ArrayList<>();
+        for (Integer filmId : filmIds) {
+            Film film = getFilmById(filmId);
+            recommendations.add(film);
+        }
+        return recommendations;
+    }
+
+    public Set<Integer> collectRecommendations(List<Integer> bestUserIds, Map<Integer, List<Integer>> otherUsersLikes,
+                                               List<Integer> userLikedFilms) {
+        Set<Integer> recommendationsFilmIds = new HashSet<>();
+        for (Integer bestUserId : bestUserIds) {
+            List<Integer> bestUserLikedFilms = otherUsersLikes.get(bestUserId);
+            for (Integer filmId : bestUserLikedFilms) {
+                if (!userLikedFilms.contains(filmId)) {
+                    recommendationsFilmIds.add(filmId);
+                }
+            }
+        }
+        return recommendationsFilmIds;
     }
 }
