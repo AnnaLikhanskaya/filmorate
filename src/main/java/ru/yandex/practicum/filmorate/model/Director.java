@@ -9,8 +9,8 @@ import lombok.NoArgsConstructor;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class Like {
+
+public class Director {
     private Integer id;
-    private Integer filmId;
-    private Integer userId;
+    private String name;
 }

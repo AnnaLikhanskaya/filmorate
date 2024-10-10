@@ -10,6 +10,7 @@ import ru.yandex.practicum.filmorate.model.MPA;
 import java.util.Map;
 import java.util.Optional;
 
+
 @Service
 @Slf4j
 public class MpaService {
@@ -29,5 +30,4 @@ public class MpaService {
         }
         return mpa.get();
     }
-
 }
