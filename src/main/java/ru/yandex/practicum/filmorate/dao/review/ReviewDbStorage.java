@@ -96,8 +96,8 @@ public class ReviewDbStorage extends BaseRepository<Review> implements ReviewSto
 
     @Override
     public int addReviewLikeOrDislike(int reviewId, int userId, boolean isLike) {
-        if (existsReviewLikes(reviewId, userId, !isLike)){
-           deleteReviewLikeOrDislike(reviewId, userId, !isLike);
+        if (existsReviewLikes(reviewId, userId, !isLike)) {
+            deleteReviewLikeOrDislike(reviewId, userId, !isLike);
         }
 
         String query = "INSERT INTO review_likes (user_id, review_id, is_like) VALUES (?, ?, ?)";
@@ -117,11 +117,7 @@ public class ReviewDbStorage extends BaseRepository<Review> implements ReviewSto
     private void updateUsefulReview(int reviewId, boolean isLike) {
         String plusMinus = isLike ? "+1" : "-1";
         String query = "UPDATE reviews SET useful = useful" + plusMinus + " WHERE id=?";
-        System.out.println(query);
-        System.out.println(reviewId);
         super.update(query, reviewId);
-        Optional<Review> one = super.findOne("select * from reviews where id = ?", reviewId);
-        System.out.println(one.get());
     }
 
     @Override
