@@ -54,3 +54,4 @@ CREATE TABLE IF NOT EXISTS REVIEW_LIKES
     review_id INT REFERENCES REVIEWS ON DELETE CASCADE NOT NULL,
     is_like   BOOLEAN                                  NOT NULL
 );
+CREATE UNIQUE INDEX IF NOT EXISTS review_likes_uq_user_review on REVIEW_LIKES (user_id, review_id);
