@@ -41,9 +41,16 @@ CREATE TABLE IF NOT EXISTS REVIEWS
 (
     id   INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
     user_id     INT REFERENCES USERS ON DELETE CASCADE NOT NULL,
-    film_id     INT REFERENCES FILMS ON DELETE CASCADE  NOT NULL,
+    film_id     INT REFERENCES FILMS ON DELETE CASCADE NOT NULL,
     is_positive BOOLEAN                                NOT NULL,
     useful      INT                                    NOT NULL,
     content     VARCHAR(128)
 );
-CREATE UNIQUE INDEX IF NOT EXISTS reviews_uq_user_film on REVIEWS (user_id, film_id);
+
+CREATE TABLE IF NOT EXISTS REVIEW_LIKES
+(
+    id        INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    user_id   INT REFERENCES USERS ON DELETE CASCADE   NOT NULL,
+    review_id INT REFERENCES REVIEWS ON DELETE CASCADE NOT NULL,
+    is_like   BOOLEAN                                  NOT NULL
+);
