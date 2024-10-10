@@ -24,4 +24,6 @@ public interface ReviewStorage {
     int addReviewLikeOrDislike(int reviewId, int userId, boolean isLike);
 
     boolean deleteReviewLikeOrDislike(int reviewId, int userId, boolean isLike);
+
+    boolean existsReviewLikes(int reviewId, int userId, boolean isLike);
 }

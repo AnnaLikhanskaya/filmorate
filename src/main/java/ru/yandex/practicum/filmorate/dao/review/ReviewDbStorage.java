@@ -108,7 +108,8 @@ public class ReviewDbStorage extends BaseRepository<Review> implements ReviewSto
         return inserted;
     }
 
-    private boolean existsReviewLikes(int reviewId, int userId, boolean isLike) {
+    @Override
+    public boolean existsReviewLikes(int reviewId, int userId, boolean isLike) {
         String query = "SELECT (EXISTS (SELECT 1 FROM REVIEW_LIKES WHERE review_id = ? AND user_id = ? and is_like = ?))";
         return super.exists(query, reviewId, userId, isLike);
     }
