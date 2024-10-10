@@ -5,6 +5,7 @@ import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
 import ru.yandex.practicum.filmorate.dao.BaseRepository;
 import ru.yandex.practicum.filmorate.dao.ReviewStorage;
+import ru.yandex.practicum.filmorate.exception.BadRequestException;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.model.Review;
 
@@ -38,7 +39,7 @@ public class ReviewDbStorage extends BaseRepository<Review> implements ReviewSto
     @Override
     public Optional<Review> getById(Integer reviewId) {
         if (reviewId == null) {
-            throw new NotFoundException("reviewId is null");
+            throw new BadRequestException("reviewId is null");
         }
 
         String queryById = "SELECT id, user_id, film_id, is_positive, " +
@@ -61,5 +62,20 @@ public class ReviewDbStorage extends BaseRepository<Review> implements ReviewSto
             review = reviewOptional.get();
         }
         return review;
+    }
+
+    @Override
+    public boolean existsById(Integer reviewId) {
+        if (reviewId == null ){
+            throw new BadRequestException("reviewId is null");
+        }
+        String query = "SELECT (EXISTS (SELECT 1 FROM reviews WHERE id=?))";
+        return super.existsById(query, reviewId);
+    }
+
+    @Override
+    public boolean deleteReviewById(int reviewId) {
+        String query = "DELETE FROM reviews WHERE id=?";
+        return super.delete(query, reviewId);
     }
 }

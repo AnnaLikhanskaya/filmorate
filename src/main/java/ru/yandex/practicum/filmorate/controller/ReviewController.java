@@ -36,7 +36,8 @@ public class ReviewController {
 
     @DeleteMapping("/{reviewId}")
     public void deleteById(@PathVariable int reviewId) {
-        ;
+        log.info("Получен запрос на удаление отзыва по id: {}", reviewId);
+        reviewService.deleteReviewByid(reviewId);
     }
 
     @GetMapping

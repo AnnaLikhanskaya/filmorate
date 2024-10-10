@@ -6,6 +6,7 @@ import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.dao.FilmStorage;
 import ru.yandex.practicum.filmorate.dao.ReviewStorage;
 import ru.yandex.practicum.filmorate.dao.UserStorage;
+import ru.yandex.practicum.filmorate.exception.BadRequestException;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.model.Review;
 
@@ -38,15 +39,18 @@ public class ReviewService {
     }
 
     private void checkUserAndFilm(Review review) {
+        if (review == null) {
+            throw new BadRequestException("Invalid review data");
+        }
         int filmId = review.getFilmId();
         int userId = review.getUserId();
-        // Проверка ссылки на Пользователя
+
         if (userStorage.getUserById(userId).isEmpty()) {
             String message = "User with id " + userId + " not found.";
             log.error(message);
             throw new NotFoundException(message);
         }
-        // Проверка ссылки на Фильм
+
         if (filmStorage.getFilmById(filmId).isEmpty()) {
             String message = "Film with id " + filmId + " not found.";
             log.error(message);
@@ -55,13 +59,23 @@ public class ReviewService {
     }
 
     public Review updateReview(Review review) {
-        chekExistsReview(review);
+        if (review == null || review.getReviewId() == null) {
+            throw new BadRequestException("Invalid review data");
+        }
+        existsReviewByid(review.getReviewId());
         checkUserAndFilm(review);
         return reviewStorage.updateReview(review);
     }
 
-    private void chekExistsReview(Review review) {
-        getById(review.getReviewId());
+    private void existsReviewByid(Integer reviewId) {
+        if (reviewId == null){
+            throw new BadRequestException("reviewId is null");
+        }
+        boolean existsReview = reviewStorage.existsById(reviewId);
+        if (existsReview){
+            return;
+        }
+        throw  new NotFoundException("review not found");
     }
 
     public Review getById(int reviewId) {
@@ -70,5 +84,15 @@ public class ReviewService {
             return reviewOptional.get();
         }
         throw new NotFoundException("review not found");
+    }
+
+    public void deleteReviewByid(int reviewId) {
+        log.trace("Delete entity with id={}.", reviewId);
+        existsReviewByid(reviewId);
+
+        boolean deleteSuccess = reviewStorage.deleteReviewById(reviewId);
+        if (!deleteSuccess){
+            throw new NotFoundException("Not delete review");
+        }
     }
 }
