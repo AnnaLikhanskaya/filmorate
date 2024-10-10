@@ -6,10 +6,7 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
-import ru.yandex.practicum.filmorate.controller.FilmController;
-import ru.yandex.practicum.filmorate.controller.GenreController;
-import ru.yandex.practicum.filmorate.controller.MpaController;
-import ru.yandex.practicum.filmorate.controller.UserController;
+import ru.yandex.practicum.filmorate.controller.*;
 import ru.yandex.practicum.filmorate.exception.BadRequestException;
 import ru.yandex.practicum.filmorate.exception.NoExceptionObject;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
@@ -20,7 +17,8 @@ import java.util.Map;
 @RestControllerAdvice(assignableTypes = {FilmController.class,
         UserController.class,
         MpaController.class,
-        GenreController.class})
+        GenreController.class,
+        DirectorController.class})
 @Slf4j
 public class ErrorHandler {
     @ExceptionHandler()

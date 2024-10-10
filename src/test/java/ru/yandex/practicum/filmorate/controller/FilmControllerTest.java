@@ -1,4 +1,4 @@
-package ru.yandex.practicum.filmorate;
+package ru.yandex.practicum.filmorate.controller;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -12,7 +12,11 @@ import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabas
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.ConfigurableApplicationContext;
+
+import ru.yandex.practicum.filmorate.FilmorateApplication;
+
 import org.springframework.test.context.ActiveProfiles;
+
 import ru.yandex.practicum.filmorate.adapter.LocalDateAdapter;
 import ru.yandex.practicum.filmorate.model.Film;
 
@@ -45,22 +49,22 @@ public class FilmControllerTest {
     @BeforeEach
     public void init() {
         context = SpringApplication.run(FilmorateApplication.class);
-        nullname = new Film(null, null, null, "Duis in consequat esse", LocalDate.of(1946,
-                8, 20), 100L, null, null);
+        nullname = new Film(null, null, null, "Duis in consequat esse",
+                LocalDate.of(1946, 8, 20), 100L, null, null, null);
         incorrectDescription = new Film(null, null,
                 "labore nulla", "Пятеро друзей ( комик-группа «Шарло»)," +
                 " приезжают в город Бризуль. Здесь они хотят разыскать господина Огюста Куглова," +
                 " который задолжал им деньги, а именно 20 миллионов. о Куглов, который за время «своего отсутствия»," +
                 " стал кандидатом Коломбани.",
-                LocalDate.of(1946, 8, 20), 100L, null, null);
+                LocalDate.of(1946, 8, 20), 100L, null, null, null);
         incorrectReleaseDate = new Film(null, null, "labore nulla", "Duis in consequat esse",
-                LocalDate.of(1884, 8, 20), 100L, null, null);
+                LocalDate.of(1884, 8, 20), 100L, null, null, null);
         negativeDuration = new Film(null, null, "labore nulla", "Duis in consequat esse",
-                LocalDate.of(1946, 8, 20), -3L, null, null);
+                LocalDate.of(1946, 8, 20), -3L, null, null, null);
         correctFilm = new Film(1, null, "labore nulla", "Duis in consequat esse",
-                LocalDate.of(1946, 8, 20), 100L, null, null);
+                LocalDate.of(1946, 8, 20), 100L, null, null, null);
         nonexistentId = new Film(9999, null, "labore nulla", "Duis in consequat esse",
-                LocalDate.of(1946, 8, 20), -3L, null, null);
+                LocalDate.of(1946, 8, 20), -3L, null, null, null);
     }
 
     private int postToServer(Film film) throws IOException, InterruptedException {
