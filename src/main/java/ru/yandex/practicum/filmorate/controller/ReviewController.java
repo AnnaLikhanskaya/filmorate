@@ -49,12 +49,14 @@ public class ReviewController {
 
     @PutMapping("/{reviewId}/like/{userId}")
     public void addReviewLike(@PathVariable int reviewId, @PathVariable int userId) {
-        ;
+        log.info("Получен запрос добавления like отзыву reviewId: {}, userId: {}", reviewId, userId);
+        reviewService.addReviewLikeOrDislike(reviewId, userId, true);
     }
 
     @PutMapping("/{reviewId}/dislike/{userId}")
     public void addReviewDislike(@PathVariable int reviewId, @PathVariable int userId) {
-        ;
+        log.info("Получен запрос добавления dislike отзыву reviewId: {}, userId: {}", reviewId, userId);
+        reviewService.addReviewLikeOrDislike(reviewId, userId, false);
     }
 
     @DeleteMapping("/{reviewId}/dislike/{userId}")

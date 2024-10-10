@@ -25,9 +25,9 @@ public class ReviewDbStorage extends BaseRepository<Review> implements ReviewSto
             throw new NotFoundException("review is null");
         }
 
-        int newReviewId = super.insert(
-                "INSERT INTO REVIEWS (user_id, film_id, useful, is_positive, content)" +
-                        " values (?, ?, ?, ?, ?)",
+        String query = "INSERT INTO REVIEWS (user_id, film_id, useful, is_positive, content)" +
+                " values (?, ?, ?, ?, ?)";
+        int newReviewId = super.insert(query,
                 review.getUserId(),
                 review.getFilmId(),
                 review.getUseful(),
@@ -92,5 +92,21 @@ public class ReviewDbStorage extends BaseRepository<Review> implements ReviewSto
         String query = "SELECT id, user_id, film_id, is_positive, " +
                 "useful, content FROM reviews ORDER BY useful DESC limit ?";
         return super.findMany(query, count);
+    }
+
+    @Override
+    public int addReviewLikeOrDislike(int reviewId, int userId, boolean isLike) {
+        String query = "INSERT INTO review_likes (user_id, review_id, is_like) VALUES (?, ?, ?)";
+        int inserted = super.insert(query, userId, reviewId, isLike);
+        if (inserted > 0) {
+            updateUsefulReview(reviewId, isLike);
+        }
+        return inserted;
+    }
+
+    private void updateUsefulReview(int reviewId, boolean isLike) {
+        String plusMinus = isLike ? "+1" : "-1";
+        String query = "UPDATE reviews SET useful = useful" + plusMinus + " WHERE id=?";
+        super.update(query, reviewId);
     }
 }

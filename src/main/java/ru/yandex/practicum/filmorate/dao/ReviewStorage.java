@@ -20,4 +20,6 @@ public interface ReviewStorage {
     List<Review> getReviewsByFilm(int filmId, int count);
 
     List<Review> getTopReviews(int count);
+
+    int addReviewLikeOrDislike(int reviewId, int userId, boolean isLike);
 }

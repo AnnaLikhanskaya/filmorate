@@ -46,11 +46,7 @@ public class ReviewService {
         int filmId = review.getFilmId();
         int userId = review.getUserId();
 
-        if (userStorage.getUserById(userId).isEmpty()) {
-            String message = "User with id " + userId + " not found.";
-            log.error(message);
-            throw new NotFoundException(message);
-        }
+        existsUserById(userId);
 
         if (filmStorage.getFilmById(filmId).isEmpty()) {
             String message = "Film with id " + filmId + " not found.";
@@ -102,5 +98,23 @@ public class ReviewService {
             return reviewStorage.getTopReviews(count);
         }
         return reviewStorage.getReviewsByFilm(filmId, count);
+    }
+
+    public void addReviewLikeOrDislike(int reviewId, int userId, boolean isLike) {
+        checkReviewAndUser(reviewId, userId);
+        reviewStorage.addReviewLikeOrDislike(reviewId, userId, isLike);
+    }
+
+    private void checkReviewAndUser(int reviewId, int userId) {
+        existsReviewByid(reviewId);
+        existsUserById(userId);
+    }
+
+    private void existsUserById(int userId) {
+        if (userStorage.getUserById(userId).isEmpty()) {
+            String message = "User with id " + userId + " not found.";
+            log.error(message);
+            throw new NotFoundException(message);
+        }
     }
 }
