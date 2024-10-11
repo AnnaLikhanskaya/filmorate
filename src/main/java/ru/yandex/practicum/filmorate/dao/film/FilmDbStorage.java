@@ -80,4 +80,27 @@ public class FilmDbStorage extends BaseRepository<Film> implements FilmStorage {
                 "WHERE ID = ?";
         return super.findOne(query, filmId);
     }
+
+    @Override
+    public List<Film> searchFilms(String query, boolean searchByTitle, boolean searchByDirector) {
+        if (!searchByTitle && !searchByDirector) {
+            throw new IllegalArgumentException("Нужно указать хотя бы одно поле для поиска: title или director");
+        }
+
+        StringBuilder sql = new StringBuilder(
+                "SELECT DISTINCT f.* FROM FILMS f " +
+                        "LEFT JOIN FILM_DIRECTOR fd ON f.id = fd.film_id " +
+                        "LEFT JOIN DIRECTOR d ON fd.director_id = d.id WHERE ");
+
+        if (searchByTitle && searchByDirector) {
+            sql.append("(LOWER(f.name) LIKE LOWER(?) OR LOWER(d.name) LIKE LOWER(?))");
+            return jdbc.query(sql.toString(), mapper, "%" + query + "%", "%" + query + "%");
+        } else if (searchByTitle) {
+            sql.append("LOWER(f.name) LIKE LOWER(?)");
+            return jdbc.query(sql.toString(), mapper, "%" + query + "%");
+        } else {
+            sql.append("LOWER(d.name) LIKE LOWER(?)");
+            return jdbc.query(sql.toString(), mapper, "%" + query + "%");
+        }
+    }
 }
