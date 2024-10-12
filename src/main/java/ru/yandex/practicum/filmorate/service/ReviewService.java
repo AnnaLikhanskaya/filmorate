@@ -55,12 +55,12 @@ public class ReviewService {
         if (review == null || review.getReviewId() == null) {
             throw new BadRequestException("Invalid review data");
         }
-        existsReviewByid(review.getReviewId());
+        existsReviewById(review.getReviewId());
         checkUserAndFilm(review);
         return reviewStorage.updateReview(review);
     }
 
-    private void existsReviewByid(Integer reviewId) {
+    private void existsReviewById(Integer reviewId) {
         if (reviewId == null) {
             throw new BadRequestException("reviewId is null");
         }
@@ -81,7 +81,7 @@ public class ReviewService {
 
     public void deleteReviewByid(int reviewId) {
         log.trace("Delete entity with id={}.", reviewId);
-        existsReviewByid(reviewId);
+        existsReviewById(reviewId);
 
         boolean deleteSuccess = reviewStorage.deleteReviewById(reviewId);
         if (!deleteSuccess) {
@@ -102,7 +102,7 @@ public class ReviewService {
     }
 
     private void checkReviewAndUser(int reviewId, int userId) {
-        existsReviewByid(reviewId);
+        existsReviewById(reviewId);
         existsUserById(userId);
     }
 
