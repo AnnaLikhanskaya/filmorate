@@ -169,8 +169,8 @@ public class UserService {
         if (userId == null) {
             throw new ValidationException("userId не может быть null");
         }
+        getUserOrThrow(userId);
 
-        User user = getUserOrThrow(userId);
         List<Integer> userLikedFilms = likeStorage.getUserLikes(userId);
 
         if (userLikedFilms == null) {

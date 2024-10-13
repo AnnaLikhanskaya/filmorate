@@ -53,10 +53,10 @@ public class FilmController {
         return filmService.updateFilm(film);
     }
 
-    @PutMapping("/{id}/like/{userId}")
-    public void like(@PathVariable Integer id, @PathVariable Integer userId) {
-        log.info("Фильму {} поставлен Лайк", id);
-        filmService.addLikeByUserIdAndFilmId(id, userId);
+    @PutMapping("/{filmId}/like/{userId}")
+    public void like(@PathVariable Integer filmId, @PathVariable Integer userId) {
+        log.info("Фильму {} поставлен Лайк", filmId);
+        filmService.addLikeByUserIdAndFilmId(filmId, userId);
     }
 
     @DeleteMapping("/{filmId}/like/{userId}")
