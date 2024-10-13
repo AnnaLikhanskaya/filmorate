@@ -10,6 +10,8 @@ import ru.yandex.practicum.filmorate.model.Genre;
 import java.util.List;
 import java.util.Optional;
 
+import static ru.yandex.practicum.filmorate.validation.GenreValidation.isFoundGenre;
+
 @Service
 @Slf4j
 @RequiredArgsConstructor(onConstructor_ = @Autowired)
@@ -23,6 +25,8 @@ public class GenreService {
 
     public Optional<Genre> getById(Integer id) {
         log.info("Получен запрос на получение жанра по ID");
-        return genreStorage.getById(id);
+        Optional<Genre> genre = genreStorage.getById(id);
+        isFoundGenre(genre);
+        return genre;
     }
 }

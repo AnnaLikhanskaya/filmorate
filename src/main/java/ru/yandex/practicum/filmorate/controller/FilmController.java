@@ -32,6 +32,29 @@ public class FilmController {
         return filmService.getFilmById(id);
     }
 
+    @GetMapping("/popular")
+    public List<Film> getPopularFilms(@RequestParam(defaultValue = "10") Integer count) {
+        log.info("Получен запрос на список популярных фильмов");
+        return filmService.getPopularFilms(count);
+    }
+
+    @GetMapping("/director/{directorId}")
+    public List<Film> getFilmsByDirector(@PathVariable Integer directorId,
+                                         @RequestParam(required = false, defaultValue = "year")
+                                         @Pattern(regexp = "^(year|likes)$",
+                                                 message = "Не корректный тип сортировки") String sortBy) {
+
+        log.info("Получен запрос на список фильмов у режиссёра: " + directorId);
+        return filmService.getFilmsByDirector(directorId, sortBy);
+    }
+
+    //новый эндпоинт
+    @GetMapping("/common")
+    public List<Film> getCommonFilms(@RequestParam Integer userId, @RequestParam Integer friendId) {
+        log.info("Запрос на получение общих фильмов для userId: {}, friendId: {}", userId, friendId);
+        return filmService.getCommonFilms(userId, friendId);
+    }
+
     @PostMapping
     public Film postFilm(@Valid @RequestBody Film film) {
         Film added = filmService.addFilm(film);
@@ -52,25 +75,10 @@ public class FilmController {
         filmService.addLikeByUserIdAndFilmId(id, userId);
     }
 
-    @DeleteMapping("/{id}/like/{userId}")
-    public void deleteLike(@PathVariable Integer id, @PathVariable Integer userId) {
-        log.info("У фильма {} удален лайк", id);
-        filmService.deleteLike(id, userId);
+    @DeleteMapping("/{filmId}/like/{userId}")
+    public void deleteLike(@PathVariable Integer filmId, @PathVariable Integer userId) {
+        log.info("У фильма {} удален лайк", filmId);
+        filmService.deleteLike(filmId, userId);
     }
 
-    @GetMapping("/popular")
-    public List<Film> getPopularFilms(@RequestParam(defaultValue = "10") Integer count) {
-        log.info("Получен запрос на список популярных фильмов");
-        return filmService.getPopularFilms(count);
-    }
-
-    @GetMapping("/director/{directorId}")
-    public List<Film> getFilmsByDirector(@PathVariable Integer directorId,
-                                         @RequestParam(required = false, defaultValue = "year")
-                                         @Pattern(regexp = "^(year|likes)$",
-                                                 message = "Не корректный тип сортировки") String sortBy) {
-
-        log.info("Получен запрос на список фильмов у режиссёра: " + directorId);
-        return filmService.getFilmsByDirector(directorId, sortBy);
-    }
 }

@@ -16,6 +16,9 @@ import ru.yandex.practicum.filmorate.model.User;
 
 import java.util.*;
 
+import static ru.yandex.practicum.filmorate.validation.UserValidation.isExsistUser;
+import static ru.yandex.practicum.filmorate.validation.UserValidation.validLogin;
+
 @Slf4j
 @Service
 @RequiredArgsConstructor(onConstructor_ = @Autowired)
@@ -39,9 +42,7 @@ public class UserService {
 
     public User createUser(User user) {
         log.info("Получен запрос на создание пользавателя");
-        if (user.getName() == null || user.getName().isBlank()) {
-            user.setName(user.getLogin());
-        }
+        user = setLoginName(user);
         validLogin(user);
         User createdUser = userStorage.addUser(user);
         createdUser.setFriends(friendStorage.getAllFriendsByUserId(createdUser.getId()));
@@ -50,6 +51,7 @@ public class UserService {
 
     public User updateUser(User user) throws NoExceptionObject {
         log.info("Получен запрос на изменение пользователя");
+        user = setLoginName(user);
         validLogin(user);
         User createdUser = userStorage.updateUser(user);
         createdUser.setFriends(friendStorage.getAllFriendsByUserId(createdUser.getId()));
@@ -59,38 +61,36 @@ public class UserService {
     public Optional<User> getUserById(int id) throws NoExceptionObject {
         log.info("Получен запрос на получение пользователя по ID");
         Optional<User> user = userStorage.getUserById(id);
-        if (user.isEmpty()) throw new NotFoundException("Пользователь не найден с ID: " + id);
+        isExsistUser(user);
         user.get().setFriends(friendStorage.getAllFriendsByUserId(id));
         return user;
     }
 
     public Collection<User> findAllFriends(int id) {
         log.info("Получен запрос на список друзей пользователя");
-        if (userStorage.getUserById(id).isEmpty())
-            throw new NotFoundException("Пользователь не найден с ID: " + id);
+        isExsistUser(userStorage.getUserById(id));
         return friendStorage
                 .getAllFriendsByUserId(id)
                 .stream()
-                .map(friendId -> userStorage.getUserById(friendId)
-                        .orElseThrow(() -> new NotFoundException("Пользователь не найден с ID: " + friendId)))
+                .map(friendId -> {
+                    isExsistUser(userStorage.getUserById(friendId));
+                    return userStorage.getUserById(friendId).get();
+                })
                 .toList();
-
     }
 
-    public void addToFriends(int id, int otherId) throws NoExceptionObject {
+    public void addToFriends(int id, int otherId) {
         log.info("Получен запрос на добавление в друзья");
-        if (userStorage.getUserById(id).isEmpty()) throw new NotFoundException("Пользователь не найден с ID: " + id);
-        if (userStorage.getUserById(otherId).isEmpty())
-            throw new NotFoundException("Пользователь не найден с ID: " + otherId);
+        isExsistUser(userStorage.getUserById(id));
+        isExsistUser(userStorage.getUserById(otherId));
         friendStorage.addFriend(id, otherId);
     }
 
 
     public void removeFromFriends(int id, int otherId) {
         log.info("Получен запрос на удаление из друзей");
-        if (userStorage.getUserById(id).isEmpty()) throw new NotFoundException("Пользователь не найден с ID: " + id);
-        if (userStorage.getUserById(otherId).isEmpty())
-            throw new NotFoundException("Пользователь не найден с ID: " + otherId);
+        isExsistUser(userStorage.getUserById(id));
+        isExsistUser(userStorage.getUserById(otherId));
         friendStorage.deleteFriend(id, otherId);
     }
 
@@ -98,8 +98,8 @@ public class UserService {
         log.info("Получен запрос на получение списка общих друзей");
         Optional<User> optionalUser = userStorage.getUserById(id);
         Optional<User> optionalFriend = userStorage.getUserById(otherId);
-        if (optionalUser.isEmpty()) throw new NotFoundException("Пользователь не найден с ID: " + id);
-        if (optionalFriend.isEmpty()) throw new NotFoundException("Пользователь не найден с ID: " + otherId);
+        isExsistUser(userStorage.getUserById(id));
+        isExsistUser(userStorage.getUserById(otherId));
         User user = optionalUser.get();
         User friend = optionalFriend.get();
         user.setFriends(friendStorage.getAllFriendsByUserId(user.getId()));
@@ -112,15 +112,11 @@ public class UserService {
                 .toList();
     }
 
-    private void validLogin(User user) {
-        if (user.getLogin().contains(" ")) {
-            throw new ValidationException("Логин не может содержать пробелы");
-        }
-    }
 
     private User getUserOrThrow(Integer userId) {
-        return userStorage.getUserById(userId)
-                .orElseThrow(() -> new NotFoundException("Пользователь не найден с ID: " + userId));
+        Optional<User> user = userStorage.getUserById(userId);
+        isExsistUser(user);
+        return user.get();
     }
 
     private Collection<User> getOtherUsers(Integer userId) {
@@ -159,6 +155,13 @@ public class UserService {
             }
         }
         return maxCommonLikes > 0 ? bestUserIds : Collections.emptyList();
+    }
+
+    private User setLoginName(User user) {
+        if (user.getName() == null || user.getName().isBlank()) {
+            user.setName(user.getLogin());
+        }
+        return user;
     }
 
     public List<Film> getRecommendations(Integer userId) {

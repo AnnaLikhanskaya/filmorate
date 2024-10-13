@@ -15,6 +15,7 @@ import java.time.LocalDate;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 @SpringBootTest
 @Transactional
@@ -77,4 +78,20 @@ public class FilmServiceTest {
         List<Film> filmsByDirector = filmService.getFilmsByDirector(director1.getId(), "year");
         assertEquals(cheking, filmsByDirector);
     }
+
+    @Test
+    public void testGetCommonFilms() {
+        Integer userId = user1.getId();
+        Integer friendId = user2.getId();
+        List<Film> commonFilms = filmService.getCommonFilms(userId, friendId);
+        assertNotNull(commonFilms);
+        assertEquals(1, commonFilms.size());
+
+        Film film = commonFilms.get(0);
+        assertNotNull(film.getId());
+        assertNotNull(film.getName());
+        assertNotNull(film.getDescription());
+        assertNotNull(film.getReleaseDate());
+    }
+
 }
