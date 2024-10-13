@@ -68,7 +68,7 @@ public class FilmServiceTest {
     @Test
     void testGetFilmsByDirectorSorterByLikes() {
         List<Film> cheking = List.of(filmService.getFilmById(film1.getId()), filmService.getFilmById(film3.getId()));
-        List<Film> filmsByDirector = filmService.getFilmsByDirector(1, "likes");
+        List<Film> filmsByDirector = filmService.getFilmsByDirector(director1.getId(), "likes");
         assertEquals(cheking, filmsByDirector);
     }
 
