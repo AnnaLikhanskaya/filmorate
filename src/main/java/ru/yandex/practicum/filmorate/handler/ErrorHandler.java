@@ -18,7 +18,9 @@ import java.util.Map;
         UserController.class,
         MpaController.class,
         GenreController.class,
+        ReviewController.class,
         DirectorController.class})
+
 @Slf4j
 public class ErrorHandler {
     @ExceptionHandler()
