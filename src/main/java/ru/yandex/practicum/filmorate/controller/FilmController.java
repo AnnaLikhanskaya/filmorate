@@ -1,6 +1,7 @@
 package ru.yandex.practicum.filmorate.controller;
 
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.Pattern;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,23 +33,6 @@ public class FilmController {
         return filmService.getFilmById(id);
     }
 
-    @GetMapping("/popular")
-    public List<Film> getPopularFilms(@RequestParam(defaultValue = "10") Integer count) {
-        log.info("Получен запрос на список популярных фильмов");
-        return filmService.getPopularFilms(count);
-    }
-
-    @GetMapping("/director/{directorId}")
-    public List<Film> getFilmsByDirector(@PathVariable Integer directorId,
-                                         @RequestParam(required = false, defaultValue = "year")
-                                         @Pattern(regexp = "^(year|likes)$",
-                                                 message = "Не корректный тип сортировки") String sortBy) {
-
-        log.info("Получен запрос на список фильмов у режиссёра: " + directorId);
-        return filmService.getFilmsByDirector(directorId, sortBy);
-    }
-
-    //новый эндпоинт
     @GetMapping("/common")
     public List<Film> getCommonFilms(@RequestParam Integer userId, @RequestParam Integer friendId) {
         log.info("Запрос на получение общих фильмов для userId: {}, friendId: {}", userId, friendId);
@@ -81,4 +65,21 @@ public class FilmController {
         filmService.deleteLike(filmId, userId);
     }
 
+    @GetMapping("/popular")
+    public List<Film> getPopular(@RequestParam(defaultValue = "10") @Min(1) int count,
+                                 @RequestParam(required = false) @Min(1) Integer genreId,
+                                 @RequestParam(required = false) @Min(1895) Integer year) {
+        log.info("Получен запрос на список популярных фильмов");
+        return filmService.getPopularFilms(count, genreId, year);
+    }
+
+    @GetMapping("/director/{directorId}")
+    public List<Film> getFilmsByDirector(@PathVariable Integer directorId,
+                                         @RequestParam(required = false, defaultValue = "year")
+                                         @Pattern(regexp = "^(year|likes)$",
+                                                 message = "Не корректный тип сортировки") String sortBy) {
+
+        log.info("Получен запрос на список фильмов у режиссёра: " + directorId);
+        return filmService.getFilmsByDirector(directorId, sortBy);
+    }
 }
