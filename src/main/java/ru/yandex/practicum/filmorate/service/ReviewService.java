@@ -6,39 +6,39 @@ import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.dao.FilmStorage;
 import ru.yandex.practicum.filmorate.dao.ReviewStorage;
 import ru.yandex.practicum.filmorate.dao.UserStorage;
-import ru.yandex.practicum.filmorate.exception.BadRequestException;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.model.Review;
 
 import java.util.List;
-import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
 @Slf4j
 public class ReviewService {
 
+    public static final String REVIEW_NOT_FOUND = "Review with id %d not found.";
+    private static final String REVIEW_NULL_ERROR = "Review is null";
     private final FilmStorage filmStorage;
     private final UserStorage userStorage;
     private final ReviewStorage reviewStorage;
 
+    private static void validateReview(Review review) {
+        if (review == null) {
+            log.error(REVIEW_NULL_ERROR);
+            throw new NullPointerException(REVIEW_NULL_ERROR);
+        }
+    }
+
     public Review addReview(Review review) {
         log.info("addReview...");
-        if (review == null) {
-            // В метод передали пустой объект
-            log.error("addReview: object review is null");
-            throw new NullPointerException("review is null");
-        }
+        validateReview(review);
         checkUserAndFilm(review);
-        // Инициализируем рейтинг полезности
         review.setUseful(0);
         return reviewStorage.addReview(review);
     }
 
     private void checkUserAndFilm(Review review) {
-        if (review == null) {
-            throw new BadRequestException("Invalid review data");
-        }
+        validateReview(review);
         int filmId = review.getFilmId();
         int userId = review.getUserId();
 
@@ -52,48 +52,34 @@ public class ReviewService {
     }
 
     public Review updateReview(Review review) {
-        if (review == null || review.getReviewId() == null) {
-            throw new BadRequestException("Invalid review data");
-        }
+        validateReview(review);
         existsReviewById(review.getReviewId());
         checkUserAndFilm(review);
         return reviewStorage.updateReview(review);
     }
 
-    private void existsReviewById(Integer reviewId) {
-        if (reviewId == null) {
-            throw new BadRequestException("reviewId is null");
+    private void existsReviewById(int reviewId) {
+        if (!reviewStorage.existsById(reviewId)) {
+            throw new NotFoundException(String.format(REVIEW_NOT_FOUND, reviewId));
         }
-        boolean existsReview = reviewStorage.existsById(reviewId);
-        if (existsReview) {
-            return;
-        }
-        throw new NotFoundException("review not found");
     }
 
     public Review getById(int reviewId) {
-        Optional<Review> reviewOptional = reviewStorage.getById(reviewId);
-        if (reviewOptional.isPresent()) {
-            return reviewOptional.get();
-        }
-        throw new NotFoundException("review not found");
+        return reviewStorage.getById(reviewId)
+                .orElseThrow(() -> new NotFoundException(String.format(REVIEW_NOT_FOUND, reviewId)));
     }
 
     public void deleteReviewByid(int reviewId) {
         log.trace("Delete entity with id={}.", reviewId);
         existsReviewById(reviewId);
-
-        boolean deleteSuccess = reviewStorage.deleteReviewById(reviewId);
-        if (!deleteSuccess) {
-            throw new NotFoundException("Not delete review");
+        if (!reviewStorage.deleteReviewById(reviewId)) {
+            throw new NotFoundException(String.format(REVIEW_NOT_FOUND, reviewId));
         }
     }
 
     public List<Review> getReviewByFilmOrAll(int filmId, int count) {
-        if (filmId == 0) {
-            return reviewStorage.getTopReviews(count);
-        }
-        return reviewStorage.getReviewsByFilm(filmId, count);
+        return (filmId == 0) ? reviewStorage.getTopReviews(count)
+                : reviewStorage.getReviewsByFilm(filmId, count);
     }
 
     public void addReviewLikeOrDislike(int reviewId, int userId, boolean isLike) {
