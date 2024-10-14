@@ -57,6 +57,4 @@ public class UserDbStorage extends BaseRepository<User> implements UserStorage {
     public Collection<User> getUsers() {
         return super.findMany("SELECT * FROM users");
     }
-
-
 }

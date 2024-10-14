@@ -9,10 +9,14 @@ import ru.yandex.practicum.filmorate.exception.BadRequestException;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.Director;
+import ru.yandex.practicum.filmorate.model.Event;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.Genre;
 import ru.yandex.practicum.filmorate.model.MPA;
+import ru.yandex.practicum.filmorate.model.enums.EventOperation;
+import ru.yandex.practicum.filmorate.model.enums.EventType;
 
+import java.time.Instant;
 import java.time.LocalDate;
 import java.util.*;
 import java.util.stream.Stream;
@@ -29,6 +33,7 @@ public class FilmService {
     private final GenreStorage genreStorage;
     private final MpaStorage mpaStorage;
     private final DirectorStorage directorStorage;
+    private final EventStorage eventStorage;
 
 
     public List<Film> getAllFilms() {
@@ -110,11 +115,25 @@ public class FilmService {
     public void addLikeByUserIdAndFilmId(Integer id, Integer userId) {
         log.info("Получен запрос добавления лайка");
         likeStorage.addLike(userId, id);
+        eventStorage.addEvent(Event.builder()
+                .timestamp(Instant.now().toEpochMilli())
+                .userId(userId)
+                .eventType(EventType.LIKE)
+                .operation(EventOperation.ADD)
+                .entityId(id)
+                .build());
     }
 
     public void deleteLike(Integer id, Integer userId) {
         log.info("Получен запрос на удаление лайка");
         likeStorage.deleteLike(userId, id);
+        eventStorage.addEvent(Event.builder()
+                .timestamp(Instant.now().toEpochMilli())
+                .userId(userId)
+                .eventType(EventType.LIKE)
+                .operation(EventOperation.REMOVE)
+                .entityId(id)
+                .build());
     }
 
     public List<Film> getPopularFilms(Integer count, Integer genreId, Integer year) {

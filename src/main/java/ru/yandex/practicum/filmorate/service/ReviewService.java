@@ -3,13 +3,19 @@ package ru.yandex.practicum.filmorate.service;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import ru.yandex.practicum.filmorate.dao.EventStorage;
 import ru.yandex.practicum.filmorate.dao.FilmStorage;
 import ru.yandex.practicum.filmorate.dao.ReviewStorage;
 import ru.yandex.practicum.filmorate.dao.UserStorage;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
+import ru.yandex.practicum.filmorate.model.Event;
 import ru.yandex.practicum.filmorate.model.Review;
+import ru.yandex.practicum.filmorate.model.enums.EventOperation;
+import ru.yandex.practicum.filmorate.model.enums.EventType;
 
+import java.time.Instant;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -21,6 +27,7 @@ public class ReviewService {
     private final FilmStorage filmStorage;
     private final UserStorage userStorage;
     private final ReviewStorage reviewStorage;
+    private final EventStorage eventStorage;
 
     private static void validateReview(Review review) {
         if (review == null) {
@@ -34,7 +41,15 @@ public class ReviewService {
         validateReview(review);
         checkUserAndFilm(review);
         review.setUseful(0);
-        return reviewStorage.addReview(review);
+        review = reviewStorage.addReview(review);
+        eventStorage.addEvent(Event.builder()
+                .timestamp(Instant.now().toEpochMilli())
+                .userId(review.getUserId())
+                .eventType(EventType.REVIEW)
+                .operation(EventOperation.ADD)
+                .entityId(review.getReviewId())
+                .build());
+        return review;
     }
 
     private void checkUserAndFilm(Review review) {
@@ -55,7 +70,15 @@ public class ReviewService {
         validateReview(review);
         existsReviewById(review.getReviewId());
         checkUserAndFilm(review);
-        return reviewStorage.updateReview(review);
+        review = reviewStorage.updateReview(review);
+        eventStorage.addEvent(Event.builder()
+                .timestamp(Instant.now().toEpochMilli())
+                .userId(review.getUserId())
+                .eventType(EventType.REVIEW)
+                .operation(EventOperation.UPDATE)
+                .entityId(review.getReviewId())
+                .build());
+        return review;
     }
 
     private void existsReviewById(int reviewId) {
@@ -71,10 +94,18 @@ public class ReviewService {
 
     public void deleteReviewByid(int reviewId) {
         log.trace("Delete entity with id={}.", reviewId);
-        existsReviewById(reviewId);
-        if (!reviewStorage.deleteReviewById(reviewId)) {
+        Optional<Review> optReview = reviewStorage.getById(reviewId);
+        if (optReview.isEmpty()) {
             throw new NotFoundException(String.format(REVIEW_NOT_FOUND, reviewId));
         }
+        reviewStorage.deleteReviewById(reviewId);
+        eventStorage.addEvent(Event.builder()
+                .timestamp(Instant.now().toEpochMilli())
+                .userId(optReview.get().getUserId())
+                .eventType(EventType.REVIEW)
+                .operation(EventOperation.REMOVE)
+                .entityId(optReview.get().getReviewId())
+                .build());
     }
 
     public List<Review> getReviewByFilmOrAll(int filmId, int count) {
