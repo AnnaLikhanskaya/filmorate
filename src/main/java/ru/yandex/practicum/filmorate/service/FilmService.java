@@ -188,4 +188,34 @@ public class FilmService {
         }
         return recommendationsFilmIds;
     }
+
+    public List<Film> searchFilms(String query, String by) {
+        if (query == null || query.trim().isEmpty()) {
+            throw new BadRequestException("Параметр query не может быть пустым");
+        }
+
+        if (by == null || by.trim().isEmpty()) {
+            throw new BadRequestException("Параметр by не может быть пустым");
+        }
+
+        String[] searchFields = by.split(",");
+        boolean searchByTitle = false;
+        boolean searchByDirector = false;
+
+        for (String field : searchFields) {
+            if (field.equalsIgnoreCase("title")) {
+                searchByTitle = true;
+            } else if (field.equalsIgnoreCase("director")) {
+                searchByDirector = true;
+            } else {
+                throw new BadRequestException("Неизвестный параметр поиска " + field);
+            }
+        }
+
+        List<Film> films = filmsStorage.searchFilms(query, searchByTitle, searchByDirector);
+        films.forEach(this::setFilmData);
+        films.sort(Comparator.comparing((Film film) -> film.getLikes().size()).reversed());
+
+        return films;
+    }
 }
