@@ -15,7 +15,6 @@ import ru.yandex.practicum.filmorate.model.MPA;
 
 import java.time.LocalDate;
 import java.util.*;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static ru.yandex.practicum.filmorate.validation.DirectorValidation.validationIsExsist;
@@ -99,7 +98,6 @@ public class FilmService {
         return setFilmData(filmsStorage.updateFilms(film));
     }
 
-
     public Film getFilmById(Integer id) {
         log.info("Получен запрос на получение фильма по ID");
         Optional<Film> film = filmsStorage.getFilmById(id);
@@ -119,14 +117,11 @@ public class FilmService {
         likeStorage.deleteLike(userId, id);
     }
 
-    public List<Film> getPopularFilms(Integer count) {
-        log.info("Получен запрос на список популярных фильмов");
-        List<Film> films = filmsStorage.getFilms();
+    public List<Film> getPopularFilms(Integer count, Integer genreId, Integer year) {
+        log.info("getPopular: count-{} genreId-{} year-{}", count, genreId, year);
+        List<Film> films = filmsStorage.getPopular(count, genreId, year);
         films.forEach(this::setFilmData);
-        return films.stream()
-                .sorted(Comparator.comparing((Film film) -> film.getLikes().size()).reversed())
-                .limit(count)
-                .collect(Collectors.toList());
+        return films;
     }
 
     public List<Film> getFilmsByDirector(Integer directorId, String sortBy) {
