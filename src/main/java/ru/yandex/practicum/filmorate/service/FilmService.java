@@ -237,4 +237,11 @@ public class FilmService {
 
         return films;
     }
+
+    public void deleteFilm(Integer filmId) {
+        Optional<Film> optionalFilm = filmsStorage.getFilmById(filmId);
+        if (optionalFilm.isPresent()){
+            filmsStorage.deleteFilmById(filmId);
+        }
+    }
 }

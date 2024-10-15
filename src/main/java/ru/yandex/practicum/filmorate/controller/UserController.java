@@ -81,6 +81,12 @@ public class UserController {
     public List<Event> getFeed(@PathVariable Integer id) {
         return userService.getUserFeed(id);
     }
+
+    @DeleteMapping("/{userId}")
+    public void deleteUser(@PathVariable Integer userId){
+        log.info("получен запрос на удаление пользователя с userId: {}", userId);
+        userService.deleteUserById(userId);
+    }
 }
 
 
