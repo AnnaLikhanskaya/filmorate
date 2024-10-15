@@ -67,8 +67,8 @@ CREATE TABLE IF NOT EXISTS EVENTS (
                                     id INT AUTO_INCREMENT PRIMARY KEY,
                                     event_timestamp BIGINT NOT NULL,
                                     user_id integer REFERENCES users (id) ON DELETE CASCADE NOT NULL,
-                                    event_type VARCHAR NOT NULL,
-                                    operation VARCHAR NOT NULL,
+                                    event_type ENUM('LIKE', 'REVIEW', 'FRIEND') NOT NULL,
+                                    operation ENUM('REMOVE', 'ADD', 'UPDATE') NOT NULL,
                                     entity_id integer NOT NULL
                                     );
 

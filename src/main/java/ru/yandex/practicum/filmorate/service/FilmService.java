@@ -116,7 +116,7 @@ public class FilmService {
         log.info("Получен запрос добавления лайка");
         likeStorage.addLike(userId, id);
         eventStorage.addEvent(Event.builder()
-                .timestamp(Instant.now().toEpochMilli())
+                .timestamp(Instant.now())
                 .userId(userId)
                 .eventType(EventType.LIKE)
                 .operation(EventOperation.ADD)
@@ -128,7 +128,7 @@ public class FilmService {
         log.info("Получен запрос на удаление лайка");
         likeStorage.deleteLike(userId, id);
         eventStorage.addEvent(Event.builder()
-                .timestamp(Instant.now().toEpochMilli())
+                .timestamp(Instant.now())
                 .userId(userId)
                 .eventType(EventType.LIKE)
                 .operation(EventOperation.REMOVE)

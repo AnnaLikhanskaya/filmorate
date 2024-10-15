@@ -19,7 +19,7 @@ public class EventDbStorage extends BaseRepository<Event> implements EventStorag
     public void addEvent(Event event) {
         super.insert("INSERT INTO EVENTS (event_timestamp, user_id, event_type, operation, entity_id)" +
                         " VALUES (?, ?, ?, ?, ?);",
-                event.getTimestamp(),
+                event.getTimestamp().toEpochMilli(),
                 event.getUserId(),
                 event.getEventType().toString(),
                 event.getOperation().toString(),

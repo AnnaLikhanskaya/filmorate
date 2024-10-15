@@ -90,7 +90,7 @@ public class UserService {
             throw new NotFoundException("Пользователь не найден с ID: " + otherId);
         friendStorage.addFriend(id, otherId);
         eventStorage.addEvent(Event.builder()
-                .timestamp(Instant.now().toEpochMilli())
+                .timestamp(Instant.now())
                 .userId(id)
                 .eventType(EventType.FRIEND)
                 .operation(EventOperation.ADD)
@@ -105,7 +105,7 @@ public class UserService {
             throw new NotFoundException("Пользователь не найден с ID: " + otherId);
         friendStorage.deleteFriend(id, otherId);
         eventStorage.addEvent(Event.builder()
-                .timestamp(Instant.now().toEpochMilli())
+                .timestamp(Instant.now())
                 .userId(id)
                 .eventType(EventType.FRIEND)
                 .operation(EventOperation.REMOVE)

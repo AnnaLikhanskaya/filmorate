@@ -43,7 +43,7 @@ public class ReviewService {
         review.setUseful(0);
         review = reviewStorage.addReview(review);
         eventStorage.addEvent(Event.builder()
-                .timestamp(Instant.now().toEpochMilli())
+                .timestamp(Instant.now())
                 .userId(review.getUserId())
                 .eventType(EventType.REVIEW)
                 .operation(EventOperation.ADD)
@@ -72,7 +72,7 @@ public class ReviewService {
         checkUserAndFilm(review);
         review = reviewStorage.updateReview(review);
         eventStorage.addEvent(Event.builder()
-                .timestamp(Instant.now().toEpochMilli())
+                .timestamp(Instant.now())
                 .userId(review.getUserId())
                 .eventType(EventType.REVIEW)
                 .operation(EventOperation.UPDATE)
@@ -100,7 +100,7 @@ public class ReviewService {
         }
         reviewStorage.deleteReviewById(reviewId);
         eventStorage.addEvent(Event.builder()
-                .timestamp(Instant.now().toEpochMilli())
+                .timestamp(Instant.now())
                 .userId(optReview.get().getUserId())
                 .eventType(EventType.REVIEW)
                 .operation(EventOperation.REMOVE)
