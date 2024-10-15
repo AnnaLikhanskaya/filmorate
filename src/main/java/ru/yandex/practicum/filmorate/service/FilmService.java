@@ -8,11 +8,7 @@ import ru.yandex.practicum.filmorate.dao.*;
 import ru.yandex.practicum.filmorate.exception.BadRequestException;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
-import ru.yandex.practicum.filmorate.model.Director;
-import ru.yandex.practicum.filmorate.model.Event;
-import ru.yandex.practicum.filmorate.model.Film;
-import ru.yandex.practicum.filmorate.model.Genre;
-import ru.yandex.practicum.filmorate.model.MPA;
+import ru.yandex.practicum.filmorate.model.*;
 import ru.yandex.practicum.filmorate.model.enums.EventOperation;
 import ru.yandex.practicum.filmorate.model.enums.EventType;
 
@@ -35,6 +31,11 @@ public class FilmService {
     private final DirectorStorage directorStorage;
     private final EventStorage eventStorage;
 
+    private static void checkFilmDate(Film film) {
+        if (film.getReleaseDate().isBefore(LocalDate.of(1895, 12, 28))) {
+            throw new ValidationException("Фильм не может быть выпущен раньше 28.12.1895");
+        }
+    }
 
     public List<Film> getAllFilms() {
         log.info("Получен запрос на список всех фильмов");
@@ -179,12 +180,6 @@ public class FilmService {
         return film;
     }
 
-    private static void checkFilmDate(Film film) {
-        if (film.getReleaseDate().isBefore(LocalDate.of(1895, 12, 28))) {
-            throw new ValidationException("Фильм не может быть выпущен раньше 28.12.1895");
-        }
-    }
-
     public List<Film> getFilmsByIds(Set<Integer> filmIds) {
         List<Film> recommendations = new ArrayList<>();
         for (Integer filmId : filmIds) {
@@ -240,7 +235,7 @@ public class FilmService {
 
     public void deleteFilm(Integer filmId) {
         Optional<Film> optionalFilm = filmsStorage.getFilmById(filmId);
-        if (optionalFilm.isPresent()){
+        if (optionalFilm.isPresent()) {
             filmsStorage.deleteFilmById(filmId);
         }
     }
