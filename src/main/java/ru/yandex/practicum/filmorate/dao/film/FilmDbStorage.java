@@ -132,4 +132,9 @@ public class FilmDbStorage extends BaseRepository<Film> implements FilmStorage {
 
         return findMany(query.toString(), params.toArray());
     }
+
+    @Override
+    public void deleteFilmById(Integer filmId) {
+        super.delete("DELETE FROM films where id = ?", filmId);
+    }
 }

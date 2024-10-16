@@ -223,4 +223,13 @@ public class UserService {
     public List<Event> getUserFeed(Integer id) {
         return eventStorage.getEvents(id);
     }
+
+    public void deleteUserById(Integer userId) {
+        Optional<User> optionalUser = userStorage.getUserById(userId);
+        if (optionalUser.isPresent()) {
+            userStorage.deleteUserById(userId);
+            return;
+        }
+        throw new NotFoundException("Пользователя с userId: " + userId + " не найдено");
+    }
 }
