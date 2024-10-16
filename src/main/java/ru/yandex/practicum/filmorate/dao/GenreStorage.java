@@ -5,16 +5,17 @@ import ru.yandex.practicum.filmorate.model.Genre;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 
 
 public interface GenreStorage {
-    Map<Integer, List<Genre>> getAllGenresByFilmId();
+    Map<Integer, Set<Genre>> getAllGenresByFilmId();
 
     List<Genre> getAll();
 
     Optional<Genre> getById(Integer id);
 
-    List<Genre> getByFilmId(Integer filmId);
+    Set<Genre> getByFilmId(Integer filmId);
 
     void assignGenre(Integer filmId, Integer genreId);
 

@@ -58,5 +58,8 @@ public class UserDbStorage extends BaseRepository<User> implements UserStorage {
         return super.findMany("SELECT * FROM users");
     }
 
-
+    @Override
+    public void deleteUserById(Integer userId) {
+        super.delete("DELETE FROM users where id = ?", userId);
+    }
 }

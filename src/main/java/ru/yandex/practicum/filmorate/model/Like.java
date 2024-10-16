@@ -11,4 +11,6 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class Like {
     private Integer id;
+    private Integer filmId;
+    private Integer userId;
 }

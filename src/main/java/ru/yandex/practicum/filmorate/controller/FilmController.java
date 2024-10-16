@@ -1,6 +1,8 @@
 package ru.yandex.practicum.filmorate.controller;
 
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.Pattern;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -31,6 +33,12 @@ public class FilmController {
         return filmService.getFilmById(id);
     }
 
+    @GetMapping("/common")
+    public List<Film> getCommonFilms(@RequestParam Integer userId, @RequestParam Integer friendId) {
+        log.info("Запрос на получение общих фильмов для userId: {}, friendId: {}", userId, friendId);
+        return filmService.getCommonFilms(userId, friendId);
+    }
+
     @PostMapping
     public Film postFilm(@Valid @RequestBody Film film) {
         Film added = filmService.addFilm(film);
@@ -45,21 +53,44 @@ public class FilmController {
         return filmService.updateFilm(film);
     }
 
-    @PutMapping("/{id}/like/{userId}")
-    public void like(@PathVariable Integer id, @PathVariable Integer userId) {
-        log.info("Фильму {} поставлен Лайк", id);
-        filmService.addLikeByUserIdAndFilmId(id, userId);
+    @PutMapping("/{filmId}/like/{userId}")
+    public void like(@PathVariable Integer filmId, @PathVariable Integer userId) {
+        log.info("Фильму {} поставлен Лайк", filmId);
+        filmService.addLikeByUserIdAndFilmId(filmId, userId);
     }
 
-    @DeleteMapping("/{id}/like/{userId}")
-    public void deleteLike(@PathVariable Integer id, @PathVariable Integer userId) {
-        log.info("У фильма {} удален лайк", id);
-        filmService.deleteLike(id, userId);
+    @DeleteMapping("/{filmId}/like/{userId}")
+    public void deleteLike(@PathVariable Integer filmId, @PathVariable Integer userId) {
+        log.info("У фильма {} удален лайк", filmId);
+        filmService.deleteLike(filmId, userId);
     }
 
     @GetMapping("/popular")
-    public List<Film> getPopularFilms(@RequestParam(defaultValue = "10") Integer count) {
+    public List<Film> getPopular(@RequestParam(defaultValue = "10") @Min(1) int count,
+                                 @RequestParam(required = false) @Min(1) Integer genreId,
+                                 @RequestParam(required = false) @Min(1895) Integer year) {
         log.info("Получен запрос на список популярных фильмов");
-        return filmService.getPopularFilms(count);
+        return filmService.getPopularFilms(count, genreId, year);
+    }
+
+    @GetMapping("/director/{directorId}")
+    public List<Film> getFilmsByDirector(@PathVariable Integer directorId,
+                                         @RequestParam(required = false, defaultValue = "year")
+                                         @Pattern(regexp = "^(year|likes)$",
+                                                 message = "Не корректный тип сортировки") String sortBy) {
+
+        log.info("Получен запрос на список фильмов у режиссёра: " + directorId);
+        return filmService.getFilmsByDirector(directorId, sortBy);
+    }
+
+    @GetMapping("/search")
+    public List<Film> searchFilms(@RequestParam String query, @RequestParam String by) {
+        return filmService.searchFilms(query, by);
+    }
+
+    @DeleteMapping("/{filmId}")
+    public void deleteFilmById(@PathVariable Integer filmId) {
+        log.info("Получен запрос на удаление фильма с id: {}", filmId);
+        filmService.deleteFilm(filmId);
     }
 }

@@ -25,7 +25,6 @@ public class FriendDbStorage extends BaseRepository<Friend> implements FriendSto
         return super.findMany(sqlQuery, userId).stream()
                 .map(Friend::getFriendId)
                 .collect(Collectors.toList());
-
     }
 
     @Override

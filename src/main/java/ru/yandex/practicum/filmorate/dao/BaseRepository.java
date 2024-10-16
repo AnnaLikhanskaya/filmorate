@@ -6,6 +6,7 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
+import org.springframework.jdbc.support.rowset.SqlRowSet;
 import ru.yandex.practicum.filmorate.exception.NoExceptionObject;
 
 import java.sql.PreparedStatement;
@@ -53,6 +54,17 @@ public class BaseRepository<T> {
             }
             return ps;
         }, keyHolder);
-        return keyHolder.getKeyAs(Integer.class);
+        Integer id = keyHolder.getKeyAs(Integer.class);
+        if (id != null) {
+            return id;
+        } else {
+            throw new NoExceptionObject("Не удалось сохранить данные");
+        }
+    }
+
+    public boolean exists(String query, Object... params) {
+        SqlRowSet srs = jdbc.queryForRowSet(query, params);
+        srs.next();
+        return srs.getBoolean(1);
     }
 }
