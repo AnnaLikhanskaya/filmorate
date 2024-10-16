@@ -3,20 +3,13 @@ package ru.yandex.practicum.filmorate.controller;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import lombok.RequiredArgsConstructor;
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.SpringApplication;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.context.ConfigurableApplicationContext;
-
-import ru.yandex.practicum.filmorate.FilmorateApplication;
-
 import org.springframework.test.context.ActiveProfiles;
-
 import ru.yandex.practicum.filmorate.adapter.LocalDateAdapter;
 import ru.yandex.practicum.filmorate.model.Film;
 
@@ -129,6 +122,4 @@ public class FilmControllerTest {
                         "Фильм создан верно, статус 200")
         );
     }
-
-
 }

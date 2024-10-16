@@ -2,17 +2,10 @@ package ru.yandex.practicum.filmorate.controller;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.springframework.boot.SpringApplication;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.context.ConfigurableApplicationContext;
-
-import ru.yandex.practicum.filmorate.FilmorateApplication;
-
 import org.springframework.test.context.ActiveProfiles;
-
 import ru.yandex.practicum.filmorate.adapter.LocalDateAdapter;
 import ru.yandex.practicum.filmorate.model.User;
 
@@ -128,5 +121,4 @@ public class UserControllerTest {
                         "Такого пользователя не существует, статус 404")
         );
     }
-
 }
