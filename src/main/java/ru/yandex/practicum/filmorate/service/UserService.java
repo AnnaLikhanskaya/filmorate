@@ -5,15 +5,21 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
+import ru.yandex.practicum.filmorate.dao.EventStorage;
 import ru.yandex.practicum.filmorate.dao.FriendStorage;
 import ru.yandex.practicum.filmorate.dao.LikeStorage;
 import ru.yandex.practicum.filmorate.dao.UserStorage;
 import ru.yandex.practicum.filmorate.exception.NoExceptionObject;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
+import ru.yandex.practicum.filmorate.model.Event;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.User;
+import ru.yandex.practicum.filmorate.model.enums.EventOperation;
+import ru.yandex.practicum.filmorate.model.enums.EventType;
+import ru.yandex.practicum.filmorate.validation.UserValidation;
 
+import java.time.Instant;
 import java.util.*;
 
 import static ru.yandex.practicum.filmorate.validation.UserValidation.isExsistUser;
@@ -29,6 +35,7 @@ public class UserService {
     private final FriendStorage friendStorage;
     private final LikeStorage likeStorage;
     private final FilmService filmService;
+    private final EventStorage eventStorage;
 
     public Collection<User> getUsers() {
         log.info("Получен запрос на список всех пользователей");
@@ -84,14 +91,27 @@ public class UserService {
         isExsistUser(userStorage.getUserById(id));
         isExsistUser(userStorage.getUserById(otherId));
         friendStorage.addFriend(id, otherId);
+        eventStorage.addEvent(Event.builder()
+                .timestamp(Instant.now())
+                .userId(id)
+                .eventType(EventType.FRIEND)
+                .operation(EventOperation.ADD)
+                .entityId(otherId)
+                .build());
     }
-
 
     public void removeFromFriends(int id, int otherId) {
         log.info("Получен запрос на удаление из друзей");
         isExsistUser(userStorage.getUserById(id));
         isExsistUser(userStorage.getUserById(otherId));
         friendStorage.deleteFriend(id, otherId);
+        eventStorage.addEvent(Event.builder()
+                .timestamp(Instant.now())
+                .userId(id)
+                .eventType(EventType.FRIEND)
+                .operation(EventOperation.REMOVE)
+                .entityId(otherId)
+                .build());
     }
 
     public Collection<User> getMutualFriends(Integer id, Integer otherId) {
@@ -202,5 +222,19 @@ public class UserService {
         }
 
         return filmService.getFilmsByIds(recommendationsFilmIds);
+    }
+
+    public List<Event> getUserFeed(Integer id) {
+        UserValidation.isExsistUser(userStorage.getUserById(id));
+        return eventStorage.getEvents(id);
+    }
+
+    public void deleteUserById(Integer userId) {
+        Optional<User> optionalUser = userStorage.getUserById(userId);
+        if (optionalUser.isPresent()) {
+            userStorage.deleteUserById(userId);
+            return;
+        }
+        throw new NotFoundException("Пользователя с userId: " + userId + " не найдено");
     }
 }

@@ -8,12 +8,7 @@ import ru.yandex.practicum.filmorate.dao.FilmStorage;
 import ru.yandex.practicum.filmorate.mappers.FilmRowMapper;
 import ru.yandex.practicum.filmorate.model.Film;
 
-
-import java.util.HashSet;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 
 @Repository
 public class FilmDbStorage extends BaseRepository<Film> implements FilmStorage {
@@ -91,7 +86,29 @@ public class FilmDbStorage extends BaseRepository<Film> implements FilmStorage {
         return new HashSet<>(findMany(query, userId));
     }
 
+    public List<Film> searchFilms(String query, boolean searchByTitle, boolean searchByDirector) {
+        if (!searchByTitle && !searchByDirector) {
+            throw new IllegalArgumentException("Нужно указать хотя бы одно поле для поиска: title или director");
+        }
 
+        StringBuilder sql = new StringBuilder(
+                "SELECT DISTINCT f.* FROM FILMS f " +
+                        "LEFT JOIN FILM_DIRECTOR fd ON f.id = fd.film_id " +
+                        "LEFT JOIN DIRECTOR d ON fd.director_id = d.id WHERE ");
+
+        if (searchByTitle && searchByDirector) {
+            sql.append("(LOWER(f.name) LIKE LOWER(?) OR LOWER(d.name) LIKE LOWER(?))");
+            return jdbc.query(sql.toString(), mapper, "%" + query + "%", "%" + query + "%");
+        } else if (searchByTitle) {
+            sql.append("LOWER(f.name) LIKE LOWER(?)");
+            return jdbc.query(sql.toString(), mapper, "%" + query + "%");
+        } else {
+            sql.append("LOWER(d.name) LIKE LOWER(?)");
+            return jdbc.query(sql.toString(), mapper, "%" + query + "%");
+        }
+    }
+
+    @Override
     public List<Film> getPopular(Integer count, Integer genreId, Integer year) {
         StringBuilder query = new StringBuilder(
                 "SELECT f.* " +
@@ -117,6 +134,11 @@ public class FilmDbStorage extends BaseRepository<Film> implements FilmStorage {
         params.add(count);
 
         return findMany(query.toString(), params.toArray());
+    }
+
+    @Override
+    public void deleteFilmById(Integer filmId) {
+        super.delete("DELETE FROM films where id = ?", filmId);
     }
 }
 

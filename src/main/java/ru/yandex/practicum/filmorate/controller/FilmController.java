@@ -82,4 +82,15 @@ public class FilmController {
         log.info("Получен запрос на список фильмов у режиссёра: " + directorId);
         return filmService.getFilmsByDirector(directorId, sortBy);
     }
+
+    @GetMapping("/search")
+    public List<Film> searchFilms(@RequestParam String query, @RequestParam String by) {
+        return filmService.searchFilms(query, by);
+    }
+
+    @DeleteMapping("/{filmId}")
+    public void deleteFilmById(@PathVariable Integer filmId) {
+        log.info("Получен запрос на удаление фильма с id: {}", filmId);
+        filmService.deleteFilm(filmId);
+    }
 }

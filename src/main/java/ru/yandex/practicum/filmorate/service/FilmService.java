@@ -5,17 +5,21 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.dao.*;
-import ru.yandex.practicum.filmorate.model.Director;
-import ru.yandex.practicum.filmorate.model.Film;
-import ru.yandex.practicum.filmorate.model.Genre;
-import ru.yandex.practicum.filmorate.model.MPA;
+import ru.yandex.practicum.filmorate.exception.BadRequestException;
+import ru.yandex.practicum.filmorate.exception.ValidationException;
+import ru.yandex.practicum.filmorate.model.*;
+import ru.yandex.practicum.filmorate.model.enums.EventOperation;
+import ru.yandex.practicum.filmorate.model.enums.EventType;
 
+import java.time.Instant;
+import java.time.LocalDate;
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static ru.yandex.practicum.filmorate.validation.DirectorValidation.validationIsExsist;
-import static ru.yandex.practicum.filmorate.validation.FilmValidation.*;
+import static ru.yandex.practicum.filmorate.validation.FilmValidation.checkCorrectFilm;
+import static ru.yandex.practicum.filmorate.validation.FilmValidation.isExsistFilm;
 import static ru.yandex.practicum.filmorate.validation.GenreValidation.isExsistGenre;
 import static ru.yandex.practicum.filmorate.validation.MpaValidation.isExsistMpa;
 import static ru.yandex.practicum.filmorate.validation.UserValidation.isExsistUser;
@@ -31,7 +35,14 @@ public class FilmService {
     private final MpaStorage mpaStorage;
     private final DirectorStorage directorStorage;
     private final UserStorage userStorage;
+    private final EventStorage eventStorage;
 
+
+    private static void checkFilmDate(Film film) {
+        if (film.getReleaseDate().isBefore(LocalDate.of(1895, 12, 28))) {
+            throw new ValidationException("Фильм не может быть выпущен раньше 28.12.1895");
+        }
+    }
 
     public List<Film> getAllFilms() {
         log.info("Получен запрос на список всех фильмов");
@@ -46,7 +57,8 @@ public class FilmService {
         Optional<MPA> mpa = mpaStorage.getById(film.getMpa().getId());
         isExsistMpa(mpa);
         if (film.getGenres() != null) {
-            film.setGenres(film.getGenres().stream().distinct().toList());
+            Set<Genre> genres = film.getGenres();
+            film.setGenres(genres);
             film.getGenres()
                     .forEach(genre -> {
                         Optional<Genre> genreFromStorage = genreStorage.getById(genre.getId());
@@ -87,16 +99,34 @@ public class FilmService {
 
     public void addLikeByUserIdAndFilmId(Integer filmId, Integer userId) {
         log.info("Получен запрос добавления лайка");
+
         isExsistFilm(filmsStorage.getFilmById(filmId));
         isExsistUser(userStorage.getUserById(userId));
         likeStorage.addLike(filmId, userId);
+
+        eventStorage.addEvent(Event.builder()
+                .timestamp(Instant.now())
+                .userId(userId)
+                .eventType(EventType.LIKE)
+                .operation(EventOperation.ADD)
+                .entityId(filmId)
+                .build());
     }
 
     public void deleteLike(Integer filmId, Integer userId) {
         log.info("Получен запрос на удаление лайка");
+
         isExsistFilm(filmsStorage.getFilmById(filmId));
         isExsistUser(userStorage.getUserById(userId));
         likeStorage.deleteLike(filmId, userId);
+
+        eventStorage.addEvent(Event.builder()
+                .timestamp(Instant.now())
+                .userId(userId)
+                .eventType(EventType.LIKE)
+                .operation(EventOperation.REMOVE)
+                .entityId(filmId)
+                .build());
     }
 
     public List<Film> getPopularFilms(Integer count, Integer genreId, Integer year) {
@@ -126,7 +156,7 @@ public class FilmService {
         }
     }
 
-    private void assignGenresToFilm(List<Genre> genres, int filmId) {
+    private void assignGenresToFilm(Set<Genre> genres, int filmId) {
         if (genres != null && !genres.isEmpty()) {
             genres.forEach(genre -> genreStorage.assignGenre(filmId, genre.getId()));
         }
@@ -134,13 +164,13 @@ public class FilmService {
 
     private Film setFilmData(Film film) {
         checkCorrectFilm(film);
-        film.setGenres(genreStorage.getByFilmId(film.getId()));
+        Set<Genre> genres = genreStorage.getByFilmId(film.getId());
+        film.setGenres(genres);
         film.setLikes(likeStorage.getFilmLikes(film.getId()));
         film.setMpa(mpaStorage.getById(film.getMpa().getId()).orElseGet(null));
         film.setDirectors(directorStorage.getByFilmId(film.getId()));
         return film;
     }
-
 
     public List<Film> getCommonFilms(Integer userId, Integer friendId) {
         log.info("Попытка получить общие фильмы userId={}, friendId={}.", userId, friendId);
@@ -158,7 +188,7 @@ public class FilmService {
 
     public List<Film> fillMovieData(List<Film> filmList) {
         Map<Integer, List<Integer>> likes = likeStorage.getAllLikesByFilmId();
-        Map<Integer, List<Genre>> genres = genreStorage.getAllGenresByFilmId();
+        Map<Integer, Set<Genre>> genres = genreStorage.getAllGenresByFilmId();
         Map<Integer, MPA> mpa = mpaStorage.getAll();
         Map<Integer, List<Director>> directors = directorStorage.getAllDirectorsByFilmId();
         List<Film> list = new ArrayList<>();
@@ -167,7 +197,7 @@ public class FilmService {
             film.setLikes(likes.get(filmId));
             if (film.getLikes() == null) film.setLikes(new ArrayList<>());
             film.setGenres(genres.get(filmId));
-            if (film.getGenres() == null) film.setGenres(new ArrayList<>());
+            if (film.getGenres() == null) film.setGenres(new HashSet<>());
             film.setMpa(mpa.get(film.getMpa().getId()));
             film.setDirectors(directors.get(filmId));
             if (film.getDirectors() == null) film.setDirectors(new ArrayList<>());
@@ -198,5 +228,42 @@ public class FilmService {
             }
         }
         return recommendationsFilmIds;
+    }
+
+    public List<Film> searchFilms(String query, String by) {
+        if (query == null || query.trim().isEmpty()) {
+            throw new BadRequestException("Параметр query не может быть пустым");
+        }
+
+        if (by == null || by.trim().isEmpty()) {
+            throw new BadRequestException("Параметр by не может быть пустым");
+        }
+
+        String[] searchFields = by.split(",");
+        boolean searchByTitle = false;
+        boolean searchByDirector = false;
+
+        for (String field : searchFields) {
+            if (field.equalsIgnoreCase("title")) {
+                searchByTitle = true;
+            } else if (field.equalsIgnoreCase("director")) {
+                searchByDirector = true;
+            } else {
+                throw new BadRequestException("Неизвестный параметр поиска " + field);
+            }
+        }
+
+        List<Film> films = filmsStorage.searchFilms(query, searchByTitle, searchByDirector);
+        films.forEach(this::setFilmData);
+        films.sort(Comparator.comparing((Film film) -> film.getLikes().size()).reversed());
+
+        return films;
+    }
+
+    public void deleteFilm(Integer filmId) {
+        Optional<Film> optionalFilm = filmsStorage.getFilmById(filmId);
+        if (optionalFilm.isPresent()) {
+            filmsStorage.deleteFilmById(filmId);
+        }
     }
 }

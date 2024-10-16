@@ -63,4 +63,13 @@ CREATE TABLE IF NOT EXISTS REVIEW_LIKES
     review_id INT REFERENCES REVIEWS ON DELETE CASCADE NOT NULL,
     is_like   BOOLEAN                                  NOT NULL
 );
+CREATE TABLE IF NOT EXISTS EVENTS (
+                                    id INT AUTO_INCREMENT PRIMARY KEY,
+                                    event_timestamp BIGINT NOT NULL,
+                                    user_id integer REFERENCES users (id) ON DELETE CASCADE NOT NULL,
+                                    event_type ENUM('LIKE', 'REVIEW', 'FRIEND') NOT NULL,
+                                    operation ENUM('REMOVE', 'ADD', 'UPDATE') NOT NULL,
+                                    entity_id integer NOT NULL
+                                    );
+
 CREATE UNIQUE INDEX IF NOT EXISTS review_likes_uq_user_review on REVIEW_LIKES (user_id, review_id);

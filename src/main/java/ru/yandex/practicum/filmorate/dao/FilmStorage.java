@@ -20,5 +20,9 @@ public interface FilmStorage {
 
     Set<Film> getFilmsByUserId(Integer userId);
 
+    List<Film> searchFilms(String query, boolean searchByTitle, boolean searchByDirector);
+
     List<Film> getPopular(Integer count, Integer genreId, Integer year);
+
+    void deleteFilmById(Integer filmId);
 }
