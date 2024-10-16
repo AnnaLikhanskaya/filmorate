@@ -37,7 +37,6 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 @ActiveProfiles("test")
 public class FilmControllerTest {
 
-    private ConfigurableApplicationContext context;
     private final URI url = URI.create("http://localhost:8080/films");
     private Film nullname;
     private Film incorrectDescription;
@@ -48,7 +47,6 @@ public class FilmControllerTest {
 
     @BeforeEach
     public void init() {
-        context = SpringApplication.run(FilmorateApplication.class);
         nullname = new Film(null, null, null, "Duis in consequat esse",
                 LocalDate.of(1946, 8, 20), 100L, null, null, null);
         incorrectDescription = new Film(null, null,
@@ -132,8 +130,5 @@ public class FilmControllerTest {
         );
     }
 
-    @AfterEach
-    public void close() {
-        SpringApplication.exit(context);
-    }
+
 }

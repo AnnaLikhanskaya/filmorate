@@ -30,7 +30,6 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 @SpringBootTest
 @ActiveProfiles("test")
 public class UserControllerTest {
-    private ConfigurableApplicationContext context;
     private final URI url = URI.create("http://localhost:8080/users");
     private User nullLogin;
     private User nullEmail;
@@ -42,7 +41,6 @@ public class UserControllerTest {
 
     @BeforeEach
     public void init() {
-        context = SpringApplication.run(FilmorateApplication.class);
         nullLogin = new User(null, "mail@mail.ru", null, "Имя",
                 LocalDate.of(1946, 8, 20), null);
         nullEmail = new User(null, null, null, "Имя",
@@ -131,8 +129,4 @@ public class UserControllerTest {
         );
     }
 
-    @AfterEach
-    public void close() {
-        SpringApplication.exit(context);
-    }
 }
