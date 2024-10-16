@@ -21,17 +21,17 @@ public class LikeDbStorage extends BaseRepository<Like> implements LikeStorage {
     }
 
     @Override
-    public void addLike(int userId, int filmId) {
+    public void addLike(int filmId, int userId) {
         String sqlQuery = "INSERT INTO FILM_LIKES (FILM_ID, USER_ID) " +
                 "VALUES(?, ?)";
         super.insert(sqlQuery, filmId, userId);
     }
 
     @Override
-    public void deleteLike(int userId, int filmId) {
+    public void deleteLike(int filmId, int userId) {
         String sqlQuery = "DELETE FROM FILM_LIKES WHERE FILM_ID = ? " +
                 "AND USER_ID = ?";
-        super.delete(sqlQuery, userId, filmId);
+        super.delete(sqlQuery, filmId, userId);
     }
 
     public List<Integer> getFilmLikes(int filmId) {

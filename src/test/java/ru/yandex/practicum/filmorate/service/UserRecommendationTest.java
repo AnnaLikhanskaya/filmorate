@@ -85,14 +85,14 @@ public class UserRecommendationTest {
                 .build();
         film3 = filmService.addFilm(tempFilm3);
 
-        likeStorage.addLike(user1.getId(), film1.getId());
-        likeStorage.addLike(user1.getId(), film2.getId());
+        likeStorage.addLike(film1.getId(), user1.getId());
+        likeStorage.addLike(film2.getId(), user1.getId());
 
-        likeStorage.addLike(user2.getId(), film1.getId());
-        likeStorage.addLike(user2.getId(), film2.getId());
-        likeStorage.addLike(user2.getId(), film3.getId());
+        likeStorage.addLike(film1.getId(), user2.getId());
+        likeStorage.addLike(film2.getId(), user2.getId());
+        likeStorage.addLike(film3.getId(), user2.getId());
 
-        likeStorage.addLike(user3.getId(), film1.getId());
+        likeStorage.addLike(film1.getId(), user3.getId());
     }
 
     @Test
@@ -105,7 +105,7 @@ public class UserRecommendationTest {
 
     @Test
     public void userExistsNoRecommendations() {
-        likeStorage.addLike(user1.getId(), film3.getId());
+        likeStorage.addLike(film3.getId(), user1.getId());
         List<Film> recommendations = userService.getRecommendations(user1.getId());
 
         Assertions.assertTrue(recommendations.isEmpty(), "Рекомендации должны быть пустыми");
@@ -131,7 +131,7 @@ public class UserRecommendationTest {
 
     @Test
     public void sameNumberOfCommonLikes() {
-        likeStorage.deleteLike(user2.getId(), film2.getId());
+        likeStorage.deleteLike(film2.getId(), user2.getId());
         List<Film> recommendations = userService.getRecommendations(user1.getId());
 
         Assertions.assertEquals(1, recommendations.size(), "Должна быть одна рекомендация");

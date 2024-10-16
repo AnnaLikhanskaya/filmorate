@@ -8,9 +8,7 @@ import ru.yandex.practicum.filmorate.dao.FilmStorage;
 import ru.yandex.practicum.filmorate.mappers.FilmRowMapper;
 import ru.yandex.practicum.filmorate.model.Film;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 @Repository
 public class FilmDbStorage extends BaseRepository<Film> implements FilmStorage {
@@ -83,6 +81,11 @@ public class FilmDbStorage extends BaseRepository<Film> implements FilmStorage {
     }
 
     @Override
+    public Set<Film> getFilmsByUserId(Integer userId) {
+        String query = "SELECT * FROM films JOIN film_likes ON films.id = film_likes.film_id WHERE film_likes.user_id = ?";
+        return new HashSet<>(findMany(query, userId));
+    }
+
     public List<Film> searchFilms(String query, boolean searchByTitle, boolean searchByDirector) {
         if (!searchByTitle && !searchByDirector) {
             throw new IllegalArgumentException("Нужно указать хотя бы одно поле для поиска: title или director");
@@ -138,3 +141,4 @@ public class FilmDbStorage extends BaseRepository<Film> implements FilmStorage {
         super.delete("DELETE FROM films where id = ?", filmId);
     }
 }
+

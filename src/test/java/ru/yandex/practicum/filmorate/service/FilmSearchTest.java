@@ -20,6 +20,7 @@ import ru.yandex.practicum.filmorate.model.User;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 @SpringBootTest
 @Transactional
@@ -82,7 +83,7 @@ public class FilmSearchTest {
                 .releaseDate(LocalDate.of(2000, 1, 1))
                 .duration(120L)
                 .mpa(new MPA(1, "G"))
-                .genres(List.of(genre1))
+                .genres(Set.of(genre1))
                 .directors(List.of(director1))
                 .build();
         film1 = filmService.addFilm(tempFilm1);
@@ -93,7 +94,7 @@ public class FilmSearchTest {
                 .releaseDate(LocalDate.of(2001, 2, 2))
                 .duration(90L)
                 .mpa(new MPA(2, "PG"))
-                .genres(List.of(genre2))
+                .genres(Set.of(genre2))
                 .directors(List.of(director2))
                 .build();
         film2 = filmService.addFilm(tempFilm2);
@@ -104,7 +105,7 @@ public class FilmSearchTest {
                 .releaseDate(LocalDate.of(2002, 3, 3))
                 .duration(110L)
                 .mpa(new MPA(3, "PG-13"))
-                .genres(List.of(genre1, genre2))
+                .genres(Set.of(genre1, genre2))
                 .directors(List.of(director1, director2))
                 .build();
         film3 = filmService.addFilm(tempFilm3);
@@ -115,15 +116,15 @@ public class FilmSearchTest {
                 .releaseDate(LocalDate.of(2003, 4, 4))
                 .duration(100L)
                 .mpa(new MPA(4, "R"))
-                .genres(List.of(genre1))
+                .genres(Set.of(genre1))
                 .directors(List.of(director3))
                 .build();
         film4 = filmService.addFilm(tempFilm4);
 
-        likeStorage.addLike(user1.getId(), film1.getId());
-        likeStorage.addLike(user1.getId(), film2.getId());
-        likeStorage.addLike(user1.getId(), film3.getId());
-        likeStorage.addLike(user1.getId(), film4.getId());
+        likeStorage.addLike(film1.getId(), user1.getId());
+        likeStorage.addLike(film2.getId(), user1.getId());
+        likeStorage.addLike(film3.getId(), user1.getId());
+        likeStorage.addLike(film4.getId(), user1.getId());
     }
 
     @Test

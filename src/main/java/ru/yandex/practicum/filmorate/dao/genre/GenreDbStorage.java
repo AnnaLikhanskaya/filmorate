@@ -22,19 +22,19 @@ public class GenreDbStorage extends BaseRepository<Genre> implements GenreStorag
 
 
     @Override
-    public Map<Integer, List<Genre>> getAllGenresByFilmId() {
+    public Map<Integer, Set<Genre>> getAllGenresByFilmId() {
         String genresSqlQuery = "SELECT * FROM GENRES";
         Map<Integer, Genre> genres = super
                 .findMany(genresSqlQuery).stream()
                 .collect(Collectors.toMap(Genre::getId, genre -> genre));
-        HashMap<Integer, List<Genre>> genresByFilmsId = new HashMap<>();
-        String filmGenresQuery = "SELECT * FROM FILM_GENRE";
+        HashMap<Integer, Set<Genre>> genresByFilmsId = new HashMap<>();
+        String filmGenresQuery = "SELECT * FROM FILM_GENRE ORDER BY FILM_GENRE.GENRE_ID ASC";
         SqlRowSet rowSet = jdbc.queryForRowSet(filmGenresQuery);
         while (rowSet.next()) {
             int filmId = rowSet.getInt("film_id");
             int genreId = rowSet.getInt("genre_id");
             if (!genresByFilmsId.containsKey(filmId)) {
-                genresByFilmsId.put(filmId, new ArrayList<>());
+                genresByFilmsId.put(filmId, new HashSet<>());
             }
             genresByFilmsId.get(filmId).add(genres.get(genreId));
         }
@@ -54,10 +54,12 @@ public class GenreDbStorage extends BaseRepository<Genre> implements GenreStorag
     }
 
     @Override
-    public List<Genre> getByFilmId(Integer filmId) {
+    public Set<Genre> getByFilmId(Integer filmId) {
         String sqlQuery = "SELECT GENRES.ID,GENRES.NAME " +
-                "FROM FILM_GENRE LEFT JOIN GENRES ON GENRES.ID=FILM_GENRE.GENRE_ID  WHERE FILM_ID = ?";
-        return super.findMany(sqlQuery, filmId);
+                "FROM FILM_GENRE LEFT JOIN GENRES ON GENRES.ID=FILM_GENRE.GENRE_ID  " +
+                "WHERE FILM_ID = ? ORDER BY GENRES.ID";
+        Set<Genre> genres = new TreeSet<>(super.findMany(sqlQuery, filmId));
+        return genres;
     }
 
     @Override
