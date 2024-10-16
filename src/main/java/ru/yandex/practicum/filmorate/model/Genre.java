@@ -10,7 +10,7 @@ import lombok.NoArgsConstructor;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class Genre implements Comparable<Genre>{
+public class Genre implements Comparable<Genre> {
     private Integer id;
     private String name;
 
