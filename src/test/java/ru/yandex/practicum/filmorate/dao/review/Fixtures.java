@@ -3,9 +3,9 @@ package ru.yandex.practicum.filmorate.dao.review;
 import ru.yandex.practicum.filmorate.model.*;
 
 import java.time.LocalDate;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Set;
 
 public class Fixtures {
     public static Film getFilm1() {
@@ -16,7 +16,7 @@ public class Fixtures {
                 LocalDate.now(),
                 100L,
                 new MPA(1, "G"),
-                new ArrayList<>(List.of(new Genre(1, "Комедия"), new Genre(2, "Драма"))),
+                Set.of(new Genre(1, "Комедия"), new Genre(2, "Драма")),
                 Collections.emptyList()
         );
     }
@@ -29,7 +29,7 @@ public class Fixtures {
                 LocalDate.now().minusDays(1),
                 200L,
                 new MPA(2, "PG"),
-                new ArrayList<>(List.of(new Genre(3, "Мультфильм"))),
+                Set.of(new Genre(3, "Мультфильм")),
                 Collections.emptyList()
         );
     }
@@ -42,7 +42,7 @@ public class Fixtures {
                 LocalDate.now().minusDays(5),
                 201L,
                 new MPA(2, "PG"),
-                new ArrayList<>(List.of(new Genre(3, "Мультфильм"))),
+                Set.of(new Genre(3, "Мультфильм")),
                 Collections.emptyList()
         );
     }
