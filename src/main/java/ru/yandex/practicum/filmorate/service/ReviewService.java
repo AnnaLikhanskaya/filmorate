@@ -38,7 +38,6 @@ public class ReviewService {
 
     public Review addReview(Review review) {
         log.info("addReview...");
-        validateReview(review);
         checkUserAndFilm(review);
         review.setUseful(0);
         review = reviewStorage.addReview(review);
@@ -67,7 +66,6 @@ public class ReviewService {
     }
 
     public Review updateReview(Review review) {
-        validateReview(review);
         existsReviewById(review.getReviewId());
         checkUserAndFilm(review);
         review = reviewStorage.updateReview(review);

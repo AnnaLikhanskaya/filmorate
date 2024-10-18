@@ -15,7 +15,6 @@ import java.time.Instant;
 import java.time.LocalDate;
 import java.util.*;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import static ru.yandex.practicum.filmorate.validation.DirectorValidation.validationIsExsist;
 import static ru.yandex.practicum.filmorate.validation.FilmValidation.checkCorrectFilm;
@@ -132,22 +131,23 @@ public class FilmService {
     public List<Film> getPopularFilms(Integer count, Integer genreId, Integer year) {
         log.info("getPopular: count-{} genreId-{} year-{}", count, genreId, year);
         List<Film> films = filmsStorage.getPopular(count, genreId, year);
-        films.forEach(this::setFilmData);
-        return films;
+        return fillMovieData(films);
     }
+
 
     public List<Film> getFilmsByDirector(Integer directorId, String sortBy) {
         validationIsExsist(directorStorage.getById(directorId));
-        List<Film> allFilms = getAllFilms();
-        Stream<Film> directorFilms = allFilms.stream().filter(film ->
-                film.getDirectors() != null && film.getDirectors().stream()
-                        .map(Director::getId).toList().contains(directorId));
+        List<Film> directorFilms = fillMovieData(filmsStorage.getFilmsByDirectorId(directorId));
 
         if (sortBy.equals("likes")) {
             return directorFilms
-                    .sorted(Comparator.comparing(film -> ((Film) film).getLikes().size()).reversed()).toList();
+                    .stream()
+                    .sorted(Comparator.comparing(film -> ((Film) film).getLikes().size()).reversed())
+                    .toList();
         }
-        return directorFilms.sorted(Comparator.comparing(Film::getReleaseDate)).toList();
+        return directorFilms.stream()
+                .sorted(Comparator.comparing(Film::getReleaseDate))
+                .toList();
     }
 
     private void assignDirectorsToFilm(List<Director> directors, Integer id) {

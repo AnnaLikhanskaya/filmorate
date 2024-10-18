@@ -60,6 +60,8 @@ public class UserDbStorage extends BaseRepository<User> implements UserStorage {
 
     @Override
     public void deleteUserById(Integer userId) {
+        super.delete("DELETE FROM friends WHERE user_id = ?", userId);
+        super.delete("DELETE FROM film_likes WHERE user_id = ?", userId);
         super.delete("DELETE FROM users where id = ?", userId);
     }
 }
