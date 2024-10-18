@@ -8,8 +8,7 @@ import ru.yandex.practicum.filmorate.dao.FilmStorage;
 import ru.yandex.practicum.filmorate.mappers.FilmRowMapper;
 import ru.yandex.practicum.filmorate.model.Film;
 
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 @Repository
 public class FilmDbStorage extends BaseRepository<Film> implements FilmStorage {
@@ -80,4 +79,75 @@ public class FilmDbStorage extends BaseRepository<Film> implements FilmStorage {
                 "WHERE ID = ?";
         return super.findOne(query, filmId);
     }
+
+    @Override
+    public Set<Film> getFilmsByUserId(Integer userId) {
+        String query = "SELECT * FROM films JOIN film_likes ON films.id = film_likes.film_id WHERE film_likes.user_id = ?";
+        return new HashSet<>(findMany(query, userId));
+    }
+
+    public List<Film> searchFilms(String query, boolean searchByTitle, boolean searchByDirector) {
+        if (!searchByTitle && !searchByDirector) {
+            throw new IllegalArgumentException("Нужно указать хотя бы одно поле для поиска: title или director");
+        }
+
+        StringBuilder sql = new StringBuilder(
+                "SELECT DISTINCT f.* FROM FILMS f " +
+                        "LEFT JOIN FILM_DIRECTOR fd ON f.id = fd.film_id " +
+                        "LEFT JOIN DIRECTOR d ON fd.director_id = d.id WHERE ");
+
+        if (searchByTitle && searchByDirector) {
+            sql.append("(LOWER(f.name) LIKE LOWER(?) OR LOWER(d.name) LIKE LOWER(?))");
+            return jdbc.query(sql.toString(), mapper, "%" + query + "%", "%" + query + "%");
+        } else if (searchByTitle) {
+            sql.append("LOWER(f.name) LIKE LOWER(?)");
+            return jdbc.query(sql.toString(), mapper, "%" + query + "%");
+        } else {
+            sql.append("LOWER(d.name) LIKE LOWER(?)");
+            return jdbc.query(sql.toString(), mapper, "%" + query + "%");
+        }
+    }
+
+    @Override
+    public List<Film> getPopular(Integer count, Integer genreId, Integer year) {
+        StringBuilder query = new StringBuilder(
+                "SELECT f.* " +
+                        "FROM FILMS f " +
+                        "LEFT JOIN FILM_GENRE fg ON f.ID = fg.FILM_ID " +
+                        "LEFT JOIN FILM_LIKES fl ON f.ID = fl.FILM_ID "
+        );
+        List<Object> params = new ArrayList<>();
+        List<String> conditions = new ArrayList<>();
+
+        if (genreId != null) {
+            conditions.add("fg.GENRE_ID = ?");
+            params.add(genreId);
+        }
+        if (year != null) {
+            conditions.add("YEAR(f.RELEASEDATE) = ?");
+            params.add(year);
+        }
+        if (!conditions.isEmpty()) {
+            query.append(" WHERE ").append(String.join(" AND ", conditions));
+        }
+        query.append(" GROUP BY f.ID ORDER BY COUNT(fl.film_id) DESC LIMIT ?;");
+        params.add(count);
+
+        return findMany(query.toString(), params.toArray());
+    }
+
+    @Override
+    public void deleteFilmById(Integer filmId) {
+        super.delete("DELETE FROM film_likes WHERE film_id = ?", filmId);
+        super.delete("DELETE FROM film_director WHERE film_id = ?", filmId);
+        super.delete("DELETE FROM film_genre WHERE film_id = ?", filmId);
+        super.delete("DELETE FROM films where id = ?", filmId);
+    }
+
+    @Override
+    public List<Film> getFilmsByDirectorId(Integer directorId) {
+        String query = "SELECT * FROM films JOIN film_director ON films.id = film_director.film_id WHERE film_director.director_id = ?";
+        return findMany(query, directorId);
+    }
 }
+

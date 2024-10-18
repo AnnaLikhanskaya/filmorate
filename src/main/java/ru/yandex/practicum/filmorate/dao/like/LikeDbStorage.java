@@ -11,8 +11,6 @@ import ru.yandex.practicum.filmorate.model.Like;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
 
 @Repository
 public class LikeDbStorage extends BaseRepository<Like> implements LikeStorage {
@@ -23,17 +21,17 @@ public class LikeDbStorage extends BaseRepository<Like> implements LikeStorage {
     }
 
     @Override
-    public void addLike(int userId, int filmId) {
+    public void addLike(int filmId, int userId) {
         String sqlQuery = "INSERT INTO FILM_LIKES (FILM_ID, USER_ID) " +
                 "VALUES(?, ?)";
         super.insert(sqlQuery, filmId, userId);
     }
 
     @Override
-    public void deleteLike(int userId, int filmId) {
+    public void deleteLike(int filmId, int userId) {
         String sqlQuery = "DELETE FROM FILM_LIKES WHERE FILM_ID = ? " +
                 "AND USER_ID = ?";
-        super.delete(sqlQuery, userId, filmId);
+        super.delete(sqlQuery, filmId, userId);
     }
 
     public List<Integer> getFilmLikes(int filmId) {
@@ -46,18 +44,25 @@ public class LikeDbStorage extends BaseRepository<Like> implements LikeStorage {
     @Override
     public HashMap<Integer, List<Integer>> getAllLikesByFilmId() {
         String likesSqlQuery = "SELECT * FROM FILM_LIKES";
-        Map<Integer, Like> likes = super.findMany(likesSqlQuery).stream().collect(Collectors.toMap(Like::getId, like -> like));
+        List<Like> likes = super.findMany(likesSqlQuery);
+
         HashMap<Integer, List<Integer>> likesByFilmsId = new HashMap<>();
 
-        likes.forEach((filmId, like) -> {
-            if (!likesByFilmsId.containsKey(filmId)) {
-                likesByFilmsId.put(filmId, new ArrayList<>(List.of(like.getId())));
+        for (Like like : likes) {
+            if (!likesByFilmsId.containsKey(like.getFilmId())) {
+                likesByFilmsId.put(like.getFilmId(), new ArrayList<>());
 
             }
-            likesByFilmsId.get(filmId).add(like.getId());
+            likesByFilmsId.get(like.getFilmId()).add(like.getId());
 
-        });
+        }
 
         return likesByFilmsId;
+    }
+
+    @Override
+    public List<Integer> getUserLikes(int userId) {
+        String sqlQuery = "SELECT film_id FROM film_likes WHERE user_id = ?";
+        return jdbc.queryForList(sqlQuery, Integer.class, userId);
     }
 }
